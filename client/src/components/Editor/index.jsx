@@ -5,7 +5,10 @@ import { monacoThemes } from "../../constants";
 // import { defineTheme } from "../../lib/defineThemes";
 import { loader } from "@monaco-editor/react";
 
+// import data from "./customTheme.json";
+
 const CustEditor = () => {
+  // console.log(data);
   const [language, setLanguage] = useState({
     id: 71,
     name: "Python 3",
@@ -15,13 +18,13 @@ const CustEditor = () => {
   const [code, setCode] = useState("");
   const [theme, setTheme] = useState("");
   const loadTheme = async () => {
-    // loads merbivore-soft theme
+    // loads custom-theme theme
     loader.init().then(async (monaco) => {
       const themeData = await import(
-        `monaco-themes/themes/Merbivore Soft.json`
+        `./customTheme.json`
       );
-      monaco.editor.defineTheme("merbivore-soft", themeData);
-      setTheme("merbivore-soft");
+      monaco.editor.defineTheme("custom-theme", themeData);
+      setTheme("custom-theme");
     });
   };
   loadTheme();
