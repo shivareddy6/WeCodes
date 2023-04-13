@@ -6,4 +6,7 @@ html, body, #root, .App {
   margin: 0;
   height: 100%;
   width: 100%;
+  color: white;
+  font-size: 14px;
+  overflow: auto;
 }

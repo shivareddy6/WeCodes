@@ -7,6 +7,29 @@ import Problem from "../controllers/leetcode/lib/problem";
 const leetcodeRoutes = express.Router();
 
 leetcodeRoutes.get(
+  "/problems",
+  checkAuth,
+  async (req: Request, res: Response) => {
+    const leetcode_credits: Credit = req.body.credits;
+    const leetcode: Leetcode = new Leetcode(leetcode_credits);
+    res.send(await leetcode.getAllProblems());
+  }
+);
+
+leetcodeRoutes.get(
+  "/problem/:slug",
+  checkAuth,
+  async (req: Request, res: Response) => {
+    const { credits } = req.body;
+    console.log(req.params);
+    const problem: Problem = new Problem(req.params.slug);
+    // console.log(problem.detail(credits));
+    console.log("called");
+    res.send(await problem.detail(credits));
+  }
+);
+
+leetcodeRoutes.get(
   "/run-code",
   checkAuth,
   async (req: Request, res: Response) => {
@@ -36,7 +59,7 @@ leetcodeRoutes.post(
   checkAuth,
   async (req: Request, res: Response) => {
     //   res.send('Express + TypeScript Server');
-    const {lang, code} = req.body;
+    const { lang, code } = req.body;
     const leetcode_credits: Credit = req.body.credits;
     const leetcode: Leetcode = new Leetcode(leetcode_credits);
     const problem: Problem = new Problem("two-sum");
@@ -47,10 +70,7 @@ leetcodeRoutes.post(
     // Show problem content, test case, code snippet etc
 
     // submit your answer
-    const details = await problem.submit(
-      lang,
-      code
-    );
+    const details = await problem.submit(lang, code);
     console.log("details sent");
     res.send(details);
   }

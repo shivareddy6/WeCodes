@@ -12,6 +12,7 @@ interface GraphQLRequestOptions {
   referer?: string;
   query: string;
   variables?: object;
+  operationName?: string;
 }
 
 interface Credit {

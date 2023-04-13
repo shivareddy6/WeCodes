@@ -1,12 +1,14 @@
 // import { resolve } from "path";
 import Helper from "../utils/helper";
 import {
+  Credit,
   ProblemDifficulty,
   ProblemStatus,
   Uris,
   submit_status,
 } from "../utils/interfaces";
 import Submission from "./submission";
+import uris from "./config";
 
 class Problem {
   static uris: Uris;
@@ -31,11 +33,18 @@ class Problem {
 
     public sampleTestCase?: string,
     public content?: string,
-    public codeSnippets?: Array<any>
-  ) {}
+    public codeSnippets?: Array<any>,
+    public credits?: Credit
+  ) {
+    Helper.setUris(uris.uri.us);
+    if (this.credits !== undefined) Helper.setCredit(this.credits);
+  }
 
-  async detail(): Promise<Problem> {
-    const response = await Helper.GraphQLRequest({
+  async detail(credits?: Credit): Promise<Problem> {
+    // console.log(credits);
+    if (credits !== undefined) Helper.setCredit(credits);
+    const questionResponse = await Helper.GraphQLRequest({
+      
       query: `
                 query getQuestionDetail($titleSlug: String!) {
                     question(titleSlug: $titleSlug) {
@@ -65,10 +74,31 @@ class Problem {
         titleSlug: this.slug,
       },
     });
-    const question = response.question;
+    const titleResponse = await Helper.GraphQLRequest({
+      operationName: "questionTitle",
+      query: `
+        query questionTitle($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            questionId
+            questionFrontendId
+            title
+            titleSlug
+            isPaidOnly
+            difficulty
+            likes
+            dislikes
+          }
+        }
+      `,
+      variables: {
+        titleSlug: this.slug,
+      },
+    })
+    console.log(titleResponse)
+    const question = questionResponse.question;
     this.id = Number(question.questionId);
     this.title = question.title;
-    this.difficulty = Helper.difficultyMap(question.difficulty);
+    this.difficulty = titleResponse.question.difficulty;
     this.starred = question.isLiked !== null;
     this.locked = question.isPaidOnly;
     this.likes = question.likes;

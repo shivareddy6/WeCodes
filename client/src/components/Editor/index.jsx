@@ -20,9 +20,7 @@ const CustEditor = () => {
   const loadTheme = async () => {
     // loads custom-theme theme
     loader.init().then(async (monaco) => {
-      const themeData = await import(
-        `./customTheme.json`
-      );
+      const themeData = await import(`./customTheme.json`);
       monaco.editor.defineTheme("custom-theme", themeData);
       setTheme("custom-theme");
     });
@@ -79,33 +77,37 @@ const CustEditor = () => {
   };
   return (
     <>
-      <div className="h-[60%] w-[80%] border-solid border-r-red-200 p-3">
-        <EditorNav
-          language={language}
-          setLanguage={setLanguage}
-          className="h-[10%]"
-        />
+      <div className="flex flex-col h-[100%] w-[100%] min-w-[400px]">
+        <div 
+        className="py-[4px]"
+        >
+          <EditorNav language={language} setLanguage={setLanguage} />
+        </div>
         <Editor
           width="100%"
           height="90%"
+          className="flex-grow-1"
           language={language.value}
           theme={theme}
           value={code}
           onChange={(newCode) => setCode(newCode)}
         />
-        <div className="my-2 flex w-[100%] gap-3">
-          <button
-            className="py-2 px-4 rounded-md border-[3px]"
-            onClick={handleSubmit}
-          >
-            Run
-          </button>
-          <button
-            className="py-2 px-4 bg-[#4cc575] text-white rounded-md"
-            onClick={handleSubmit}
-          >
-            Submit
-          </button>
+        <div className="mt-[1px] py-[10px] px-[20px] h-[55px] flex w-[100%] gap-3 justify-between bg-[#282828]">
+          <button className=" px-4 bg-[#3d3d3d] hover:bg-[#464646]" style={{borderRadius: "8px"}}>Console</button>
+          <div className="flex gap-2 ">
+            <button
+              className="px-4 py-2 bg-[#3d3d3d] hover:bg-[#464646] rounded-[8px]"
+              onClick={handleSubmit}
+            >
+              Run
+            </button>
+            <button
+              className="py-2 px-4 bg-[#2CBB5D] hover:bg-[#4cc575] text-white rounded-md"
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          </div>
         </div>
       </div>
     </>
