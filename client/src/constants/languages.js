@@ -6,24 +6,28 @@ export const LANGUAGES = [
     name: "JavaScript",
     label: "JavaScript",
     value: "javascript",
+    leetcode_value: "javascript"
   },
   {
     id: 54,
     name: "C++",
     label: "C++",
     value: "cpp",
+    leetcode_value: "cpp",
   },
   {
     id: 71,
-    name: "Python 3",
+    name: "Python3",
     label: "Python 3",
     value: "python",
+    leetcode_value: "Python3",
   },
   {
     id: 62,
     name: "Java",
     label: "Java",
     value: "java",
+    leetcode_value: "java",
   },
 ]
 

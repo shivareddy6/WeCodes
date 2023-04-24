@@ -1,13 +1,22 @@
 import React, { useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
-const Dropdown = ({ placeholder, options, value, handleChange }) => {
-  const [selected, setSelected] = useState(placeholder);
-  console.log(options);
+import QuestionDisplay from "./QuestionDisplay";
+const Dropdown = ({
+  placeholder,
+  options,
+  value,
+  onChange,
+  disabled = false,
+}) => {
+  // console.log(disabled)
   return (
     <Menu as="div" className="relative inline-block text-left z-10">
       <div>
-        <Menu.Button className="inline-flex justify-center px-4 py-2 text-sm font-medium bg-[#282828] border border-[#282828] hover:border-gray-300 rounded-md shadow-sm hover:bg-[#3a3a3a] focus:outline-none">
-          {selected}
+        <Menu.Button
+          disabled={disabled}
+          className={"inline-flex justify-center px-4 py-2 text-sm font-medium bg-[#282828] border border-[#282828] hover:border-gray-300 rounded-md shadow-sm hover:bg-[#3a3a3a] focus:outline-none " + (disabled ? "text-[#282828] hover:text-[#3a3a3a]" : "")}
+        >
+          {placeholder.value || placeholder}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-5 h-5 ml-2 -mr-1"
@@ -35,19 +44,16 @@ const Dropdown = ({ placeholder, options, value, handleChange }) => {
       >
         <Menu.Items className="absolute left-0 w-56 mt-2 origin-top-right bg-[#282828] rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1">
-            {options.map((option) => {
+            {options.map((option, ind) => {
               return (
-                <Menu.Item>
+                <Menu.Item key={ind}>
                   <button
-                    className={`w-full flex hover:bg-[#3a3a3a] px-4 py-2 ${
-                      true && "font-medium"
-                    }`}
+                    className={`w-full flex hover:bg-[#3a3a3a] px-4 py-2 font-medium"`}
                     onClick={() => {
-                      console.log(option);
-                      handleChange(option);
+                      onChange(option);
                     }}
                   >
-                    {option}
+                    {option.value || option}
                   </button>
                 </Menu.Item>
               );

@@ -1,19 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CustEditor } from "../Editor";
 import QuestionDisplay from "../QuestionDisplay";
 import Split from "react-split-grid";
 import "./styles.css";
+import { loader } from "@monaco-editor/react";
 
 const Room = () => {
-  const [problemSlug, setProblemSlug] = useState("valid-parentheses");
   const [problems, setProblems] = useState([
-    "valid-parentheses",
+    "two-sum",
     "largest-color-value-in-a-directed-graph",
     "valid-parentheses",
     "largest-color-value-in-a-directed-graph",
   ]);
+  const [problemSlug, setProblemSlug] = useState(problems[0]);
+  const [language, setLanguage] = useState({
+    id: 71,
+    name: "Python3",
+    label: "Python 3",
+    value: "python",
+    leetcode_value: "python3",
+  });
+  const [theme, setTheme] = useState("");
+  const [questionLoading, setQuestionLoading] = useState(false);
+  const loadTheme = async () => {
+    // loads custom-theme theme
+    loader.init().then(async (monaco) => {
+      const themeData = await import(`../../constants/customTheme.json`);
+      monaco.editor.defineTheme("custom-theme", themeData);
+      setTheme("custom-theme");
+    });
+  };
+  loadTheme();
+  // useState(()=>console.log("room", questionLoading), [questionLoading]);
+  // console.log("room", snippets)
+
   return (
-    <div className="flex-1">
+    <div className="w-full h-full">
       <Split
         // snapOffset={150}
         // minSize={}
@@ -23,6 +45,8 @@ const Room = () => {
               problemSlug={problemSlug}
               problems={problems}
               setProblemSlug={setProblemSlug}
+              questionLoading={questionLoading}
+              setQuestionLoading={setQuestionLoading}
             />
             <div
               className="gutter flex justify-center items-center gutter-vertical"
@@ -33,7 +57,14 @@ const Room = () => {
                 style={{ pointerEvents: "none" }}
               />
             </div>
-            <CustEditor problemSlug={problemSlug} />
+            <CustEditor
+              problemSlug={problemSlug}
+              language={language}
+              setLanguage={setLanguage}
+              theme={theme}
+              questionLoading={questionLoading}
+              setQuestionLoading={setQuestionLoading}
+            />
             <div
               className="gutter flex justify-center items-center gutter-vertical"
               {...getGutterProps("column", 3)}
