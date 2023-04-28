@@ -1,10 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import Leetcode from "./controllers/leetcode";
-import { Credit, EndPoint } from "./controllers/leetcode/utils/interfaces";
-import Problem from "./controllers/leetcode/lib/problem";
-import { checkAuth } from "./middleware/authMiddleware";
 import { leetcodeRoutes } from "./routes/leetcodeRoutes";
 
 dotenv.config();

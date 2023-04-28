@@ -1,9 +1,8 @@
 import express, { Express, Request, Response } from "express";
 import { checkAuth } from "../middleware/authMiddleware";
-import { Credit } from "../controllers/leetcode/utils/interfaces";
-import Leetcode from "../controllers/leetcode";
-import Problem from "../controllers/leetcode/lib/problem";
 import { NewProblem } from "../controllers/leetcodeFuncs/lib/problem";
+import { getAllProblems } from "../controllers/leetcodeFuncs";
+import { Credit } from "../controllers/leetcodeFuncs/interfaces";
 
 const leetcodeRoutes = express.Router();
 
@@ -12,8 +11,7 @@ leetcodeRoutes.get(
   checkAuth,
   async (req: Request, res: Response) => {
     const leetcode_credits: Credit = req.body.credits;
-    const leetcode: Leetcode = new Leetcode(leetcode_credits);
-    res.send(await leetcode.getAllProblems());
+    res.send(await getAllProblems(leetcode_credits));
   }
 );
 
@@ -43,16 +41,6 @@ leetcodeRoutes.post(
     const { slug, code, language, input } = req.body;
     console.log(code, language, input);
     const problem = new NewProblem(slug, leetcode_credits);
-
-    // Show problem content, test case, code snippet etc
-
-    // submit your answer
-    // const details = await problem.runCode(
-    //   "cpp",
-    //   "class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        for(int i = 0;i < nums.size();i++){\n            for(int j = i+1;j<nums.size();j++){\n            if(nums[i] + nums[j] == target) return {i,j};\n          }\n        }\n    return {};\n    }\n};",
-    //   "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6\n[2,7,11,15,16]\n9"
-    // );
-
     const details = await problem.runCode(language, code, input);
     console.log("details sent");
     res.send(details);
@@ -67,15 +55,6 @@ leetcodeRoutes.post(
     const { slug, code, language, input } = req.body;
     console.log(code, language, input);
     const problem = new NewProblem(slug, leetcode_credits);
-
-    // Show problem content, test case, code snippet etc
-
-    // submit your answer
-    // const details = await problem.runCode(
-    //   "cpp",
-    //   "class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        for(int i = 0;i < nums.size();i++){\n            for(int j = i+1;j<nums.size();j++){\n            if(nums[i] + nums[j] == target) return {i,j};\n          }\n        }\n    return {};\n    }\n};",
-    //   "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6\n[2,7,11,15,16]\n9"
-    // );
 
     const details = await problem.submitCode(language, code, input);
     console.log("details sent");

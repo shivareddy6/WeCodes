@@ -145,7 +145,12 @@ export class NewProblem {
     // console.log("called run");
     await this.setTitleDetails();
     // console.log("title details set", this.id);
-    // console.log("apiRoute", apiRoutes.run.replace("$slug", this.slug));
+    console.log({
+      data_input: input,
+      lang: lang,
+      question_id: this.id,
+      typed_code: code,
+    });
     const runResponse = await httpRequest(
       {
         url: apiRoutes.run.replace("$slug", this.slug),
@@ -184,7 +189,7 @@ export class NewProblem {
           },
           this.credit
         );
-        console.log(runDetails);
+        // console.log(runDetails);
       }, 2000);
     });
   };

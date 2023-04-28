@@ -4,6 +4,7 @@ import QuestionDisplay from "../QuestionDisplay";
 import Split from "react-split-grid";
 import "./styles.css";
 import { loader } from "@monaco-editor/react";
+import ChatWindow from "../ChatWindow";
 
 const Room = () => {
   const [problems, setProblems] = useState([
@@ -74,6 +75,7 @@ const Room = () => {
                 style={{ pointerEvents: "none" }}
               />
             </div>
+            <ChatWindow />
             <div />
           </div>
         )}

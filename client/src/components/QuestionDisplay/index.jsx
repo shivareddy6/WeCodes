@@ -108,11 +108,12 @@ const QuestionDisplay = ({
           </button>
         ))}
       </div> */}
-      <div className="py-[4px]">
+      <div className="py-[4px] h-[42px]">
         <Dropdown
           options={problems}
           placeholder={problems[0]}
           onChange={(newProblem) => setProblemSlug(newProblem)}
+          disabled={questionLoading}
         />
       </div>
       <div className="bg-[#282828] relative w-[100%] flex-1">

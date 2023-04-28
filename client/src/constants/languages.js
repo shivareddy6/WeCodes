@@ -20,7 +20,7 @@ export const LANGUAGES = [
     name: "Python3",
     label: "Python 3",
     value: "python",
-    leetcode_value: "Python3",
+    leetcode_value: "python3",
   },
   {
     id: 62,
