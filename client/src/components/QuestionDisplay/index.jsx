@@ -118,7 +118,7 @@ const QuestionDisplay = ({
       </div>
       <div className="bg-[#282828] relative w-[100%] flex-1">
         <div
-          className="absolute top-0 left-0 right-0 bottom-0 overflowy-scroll break-words p-4"
+          className="absolute top-0 left-0 right-0 bottom-0 overflowy-scroll break-words p-4 scrollbar-thin scrollbar-thumb-[#525252] scrollbar-track-primary scrollbar-track-rounded-full scrollbar-thumb-rounded-full"
           style={{ overflowY: "auto" }}
         >
           {questionLoading === false ? (

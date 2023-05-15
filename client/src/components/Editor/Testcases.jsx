@@ -49,8 +49,9 @@ const Testcases = ({
   stdOutput,
   expectedOutput,
   runError,
+  wrongTestCase,
 }) => {
-  //   console.log(testcases);
+  console.log(wrongTestCase);
   return (
     <div className="p-2 flex flex-col gap-2 justify-between">
       {status !== "" && statusBanner(status)}
@@ -65,25 +66,41 @@ const Testcases = ({
       {stdOutput !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Stdout:</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md">{stdOutput}</pre>
+          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+            {stdOutput}
+          </pre>
+        </div>
+      )}
+      {wrongTestCase !== "" && (
+        <div className="flex flex-col gap-2 py-1">
+          <p className="text-lg font-medium">Wrong Answer for:</p>
+          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+            {wrongTestCase}
+          </pre>
         </div>
       )}
       {expectedOutput !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Expected Output</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md">{expectedOutput}</pre>
+          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+            {expectedOutput}
+          </pre>
         </div>
       )}
       {userOutput !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Your Output</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md">{userOutput}</pre>
+          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+            {userOutput}
+          </pre>
         </div>
       )}
       {runError !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Error:</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md">{runError}</pre>
+          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+            {runError}
+          </pre>
         </div>
       )}
     </div>

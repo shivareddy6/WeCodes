@@ -39,9 +39,14 @@ leetcodeRoutes.post(
     //   res.send('Express + TypeScript Server');
     const leetcode_credits: Credit = req.body.credits;
     const { slug, code, language, input } = req.body;
-    console.log(code, language, input);
-    const problem = new NewProblem(slug, leetcode_credits);
-    const details = await problem.runCode(language, code, input);
+    // console.log(code, language, input);
+    let details;
+    try {
+      const problem = new NewProblem(slug, leetcode_credits);
+      details = await problem.runCode(language, code, input);
+    } catch (err) {
+      console.log(err);
+    }
     console.log("details sent");
     res.send(details);
   }
@@ -53,13 +58,17 @@ leetcodeRoutes.post(
   async (req: Request, res: Response) => {
     const leetcode_credits: Credit = req.body.credits;
     const { slug, code, language, input } = req.body;
-    console.log(code, language, input);
-    const problem = new NewProblem(slug, leetcode_credits);
-
-    const details = await problem.submitCode(language, code, input);
+    // console.log(code, language, input);
+    let details;
+    try {
+      const problem = new NewProblem(slug, leetcode_credits);
+      details = await problem.submitCode(language, code, input);
+    } catch (err) {
+      console.log(err)
+    }
     console.log("details sent");
     res.send(details);
   }
 );
 
-export { leetcodeRoutes };
+export { leetcodeRoutes }; 

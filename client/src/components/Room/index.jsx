@@ -5,10 +5,11 @@ import Split from "react-split-grid";
 import "./styles.css";
 import { loader } from "@monaco-editor/react";
 import ChatWindow from "../ChatWindow";
+import io from "socket.io-client"
 
-const Room = () => {
+const Room = ({socket}) => {
   const [problems, setProblems] = useState([
-    "two-sum",
+    "palindrome-number",
     "largest-color-value-in-a-directed-graph",
     "valid-parentheses",
     "largest-color-value-in-a-directed-graph",
@@ -23,6 +24,18 @@ const Room = () => {
   });
   const [theme, setTheme] = useState("");
   const [questionLoading, setQuestionLoading] = useState(false);
+  const [username, setUsername] = useState("shiva_nanda");
+
+  
+
+  useEffect(() => {
+    // console.log("connecting socket");
+    // socket = 
+    // console.log(socket)
+    // console.log("connection done");
+    // return () => socket.emit("emit");
+  }, [])
+
   const loadTheme = async () => {
     // loads custom-theme theme
     loader.init().then(async (monaco) => {
@@ -32,8 +45,6 @@ const Room = () => {
     });
   };
   loadTheme();
-  // useState(()=>console.log("room", questionLoading), [questionLoading]);
-  // console.log("room", snippets)
 
   return (
     <div className="w-full h-full">
@@ -75,7 +86,11 @@ const Room = () => {
                 style={{ pointerEvents: "none" }}
               />
             </div>
-            <ChatWindow />
+            <ChatWindow
+              username={username}
+              setUsername={setUsername}
+              socket={socket}
+            />
             <div />
           </div>
         )}

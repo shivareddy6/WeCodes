@@ -5,6 +5,7 @@ import { monacoThemes } from "../../constants";
 // import { defineTheme } from "../../lib/defineThemes";
 import { loader } from "@monaco-editor/react";
 import Testcases from "./Testcases";
+import "./styles.css";
 
 // import data from "./customTheme.json";
 
@@ -25,6 +26,7 @@ const CustEditor = ({
   const [stdOutput, setStdOutput] = useState("");
   const [runError, setRunError] = useState("");
   const [codeRunning, setCodeRunning] = useState(false);
+  const [wrongTestCase, setWrongTestCase] = useState("");
   // console.log("question in editor", questionLoading)
   useEffect(() => {
     // console.log("reload");
@@ -92,7 +94,14 @@ const CustEditor = ({
   };
 
   const handleSubmit = async (curLanguage, curCode, curInput) => {
+    setCodeRunning(true);
     console.log("called submit", curLanguage);
+    setUserOutput("");
+    setExpectedOutput("");
+    setStdOutput("");
+    setRunError("");
+    setStatus("");
+    setWrongTestCase("");
     // curInput = "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6\n[2,7,11,15,16]\n9";
     const data = {
       code: curCode,
@@ -113,6 +122,12 @@ const CustEditor = ({
     const response = await res.json();
     console.log(response);
     setStatus(response.status_msg);
+    setWrongTestCase(response.input_formatted ? response.input_formatted : "");
+    setUserOutput(response.code_output ? response.code_output : "");
+    setExpectedOutput(response.expected_output ? response.expected_output : "");
+    setRunError(response.runtime_error ? response.runtime_error : "");
+
+    setCodeRunning(false);
   };
 
   const handleRunCode = async (curLanguage, curCode, curInput) => {
@@ -132,6 +147,7 @@ const CustEditor = ({
     setStdOutput("");
     setRunError("");
     setStatus("");
+    setWrongTestCase("");
     const res = await fetch("http://localhost:8080/leetcode/run-code/", {
       method: "POST",
       headers: {
@@ -187,7 +203,7 @@ const CustEditor = ({
               <Editor
                 width="100%"
                 height="80%"
-                // className="flex-grow-1"
+                className="relative overflow-hidden"
                 language={language.value}
                 theme={theme}
                 value={code}
@@ -210,6 +226,7 @@ const CustEditor = ({
                   userOutput={userOutput}
                   stdOutput={stdOutput}
                   runError={runError}
+                  wrongTestCase={wrongTestCase}
                 />
               </div>
             </div>

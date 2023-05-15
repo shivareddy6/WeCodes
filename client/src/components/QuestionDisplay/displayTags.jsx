@@ -39,8 +39,8 @@ const DisplayTags = ({ tags }) => {
   const tagsIcon = () => {};
   return (
     <div>
-      <div className="flex justify-between mb-3">
-        <p>Tags</p>
+      <div className="flex justify-between mb-3 pt-2 mt-4 pr-2 border-t-[2px] border-t-secondary">
+        <p className="text-lg font-semibold">Related Topics</p>
         <DisplayIcon open={open} setOpen={setOpen} />
       </div>
       <div
