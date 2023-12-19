@@ -9,6 +9,7 @@ dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
+const mongoURL: string = (process.env.MONGODB_URL ? process.env.MONGODB_URL : "");
 app.use(express.json());
 const options: cors.CorsOptions = {
   allowedHeaders: [
@@ -36,17 +37,22 @@ const io = new Server(httpServer, {
   },
 });
 
+app.get("/", (req, res) => {
+  res.send("Hello")
+})
+
 const CHAT_BOT = "chatBot";
 let chatRoom = "";
 let allUsers: any = [];
-const room = "myRoom";
+// const room = "myRoom";
 
 io.on("connection", (socket) => {
   console.log(`User connected ${socket.id}`);
   // socket.disconnect();
 
   socket.on("join_room", (data) => {
-    const { username } = data;
+    console.log("in", data);
+    const { username, room } = data;
     console.log("joining room", socket.id, username);
     socket.join(room);
     let __createdtime__ = Date.now(); // Current timestamp
@@ -70,17 +76,21 @@ io.on("connection", (socket) => {
     socket.emit("chatroom_users", chatRoomUsers);
   });
 
-  socket.on('send_message', (data) => {
-    const { message, username, __createdtime__ } = data;
-    io.in(room).emit('receive_message', data); // Send to all users in room, including sender
+  socket.on("send_message", (data) => {
+    const { message, username, __createdtime__, room } = data;
+    io.in(room).emit("receive_message", data); // Send to all users in room, including sender
   });
 
   socket.on("end", () => {
-    console.log('disconnecting', socket);
+    console.log("disconnecting", socket);
     socket.disconnect();
   });
-});
+}); 
 
-httpServer.listen(port, (): void => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+try {
+  httpServer.listen(port, (): void => {
+    console.log(`Server is running at http://localhost:${port}`);
+  });
+} catch (err) {
+  console.log(err);
+}

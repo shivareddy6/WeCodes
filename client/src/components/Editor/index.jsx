@@ -29,23 +29,27 @@ const CustEditor = ({
   const [wrongTestCase, setWrongTestCase] = useState("");
   // console.log("question in editor", questionLoading)
   useEffect(() => {
-    // console.log("reload");
-    const snippets = JSON.parse(
-      localStorage.getItem(`${problemSlug}_snippets`)
-    );
-    // console.log("prev", snippets, snippets === null);
-    if (snippets === null) {
-      fetchAndSetSnippets();
-    } else {
-      setOldCode();
+    if (problemSlug !== "") {
+      // console.log("reload");
+      const snippets = JSON.parse(
+        localStorage.getItem(`${problemSlug}_snippets`)
+      );
+      // console.log("prev", snippets, snippets === null);
+      if (snippets === null) {
+        fetchAndSetSnippets();
+      } else {
+        setOldCode();
+      }
     }
   }, []);
 
   useEffect(() => {
-    try {
-      setOldCode();
-    } catch (err) {
-      console.log(err);
+    if (problemSlug !== "") {
+      try {
+        setOldCode();
+      } catch (err) {
+        console.log(err);
+      }
     }
   }, [language, problemSlug]);
 
@@ -216,7 +220,7 @@ const CustEditor = ({
                 }}
                 options={{ minimap: { enabled: false } }}
               />
-              <div className=" p-0 bg-[#282828] min-h-[21%]">
+              <div className=" p-0 bg-secondary min-h-[21%]">
                 <Testcases
                   testcaseData={testcaseData}
                   setTestcaseData={setTestcaseData}
@@ -230,7 +234,7 @@ const CustEditor = ({
                 />
               </div>
             </div>
-            <div className="mt-[1px] h-[8%] flex-none py-[10px] px-[20px] flex w-[100%] gap-3 justify-end bg-[#282828]">
+            <div className="mt-[1px] h-[8%] flex-none py-[10px] px-[20px] flex w-[100%] gap-3 justify-end bg-secondary">
               <div className="flex gap-2 ">
                 <button
                   disabled={questionLoading || codeRunning}

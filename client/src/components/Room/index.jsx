@@ -5,16 +5,16 @@ import Split from "react-split-grid";
 import "./styles.css";
 import { loader } from "@monaco-editor/react";
 import ChatWindow from "../ChatWindow";
-import io from "socket.io-client"
+import io from "socket.io-client";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProblems } from "../../store/slices/roomSlice";
 
-const Room = ({socket}) => {
-  const [problems, setProblems] = useState([
-    "palindrome-number",
-    "largest-color-value-in-a-directed-graph",
-    "valid-parentheses",
-    "largest-color-value-in-a-directed-graph",
-  ]);
-  const [problemSlug, setProblemSlug] = useState(problems[0]);
+const Room = ({ socket }) => {
+  const problems = useSelector((state) => state.room.allProblems);
+  const problemsLoading = useSelector((state) => state.room.isLoading);
+  const currentProblem = useSelector((state) => state.room.currentProblem);
+
+  const [problemSlug, setProblemSlug] = useState("");
   const [language, setLanguage] = useState({
     id: 71,
     name: "Python3",
@@ -24,17 +24,15 @@ const Room = ({socket}) => {
   });
   const [theme, setTheme] = useState("");
   const [questionLoading, setQuestionLoading] = useState(false);
-  const [username, setUsername] = useState("shiva_nanda");
-
-  
+  const username = useSelector((state) => state.user.username)
+  console.log("username chat", username)
+  useEffect(() => {
+    joinroom();
+  }, []);
 
   useEffect(() => {
-    // console.log("connecting socket");
-    // socket = 
-    // console.log(socket)
-    // console.log("connection done");
-    // return () => socket.emit("emit");
-  }, [])
+    if (problems.length !== 0) setProblemSlug(problems[currentProblem]);
+  }, [currentProblem, problems]);
 
   const loadTheme = async () => {
     // loads custom-theme theme
@@ -46,13 +44,24 @@ const Room = ({socket}) => {
   };
   loadTheme();
 
+  const joinroom = () => {
+    if (username !== "") {
+      console.log("sending join room request");
+      socket.emit("join_room", { username: username, room: "room" });
+    }
+  };
+  console.log("probs", problemsLoading, problems, problemSlug, "|");
+  if (problemsLoading)
+    return <div className="flex justify-center items-center w-full h-full">Loading...</div>;
+
   return (
     <div className="w-full h-full">
       <Split
-        // snapOffset={150}
-        // minSize={}
-        render={({ getGridProps, getGutterProps }) => (
-          <div className="room-grid h-[100%] pt-2" {...getGridProps()}>
+        render={({ getGridProps, getGutterProps }) => { 
+          console.log("grid", getGridProps());
+          
+          return (
+          <div className="room-grid h-[100%] pt-2"  style={{...(getGridProps().style), gridTemplateRows: "1fr 10px"}}>
             <QuestionDisplay
               problemSlug={problemSlug}
               problems={problems}
@@ -88,12 +97,12 @@ const Room = ({socket}) => {
             </div>
             <ChatWindow
               username={username}
-              setUsername={setUsername}
               socket={socket}
             />
             <div />
           </div>
         )}
+      }
       />
     </div>
   );

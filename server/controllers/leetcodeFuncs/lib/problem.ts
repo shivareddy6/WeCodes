@@ -144,7 +144,7 @@ export class NewProblem {
   runCode = async (lang: string, code: string, input: string) => {
     // console.log("called run");
     await this.setTitleDetails();
-    // console.log("title details set", this.id);
+    console.log("title details set", this.id);
     console.log({
       data_input: input,
       lang: lang,
@@ -164,7 +164,7 @@ export class NewProblem {
       },
       this.credit
     );
-
+    console.log("run response ", runResponse);
     const interpret_id = runResponse.interpret_id;
     console.log("submitted the code to run ", interpret_id);
     let runDetails: any = { state: "PENDING" };

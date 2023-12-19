@@ -35,7 +35,7 @@ const DisplayIcon = ({ open, setOpen }) => {
 
 const DisplayTags = ({ tags }) => {
   const [open, setOpen] = useState(false);
-    // console.log(tags)
+  // console.log(tags)
   const tagsIcon = () => {};
   return (
     <div>

@@ -51,7 +51,6 @@ const Testcases = ({
   runError,
   wrongTestCase,
 }) => {
-  console.log(wrongTestCase);
   return (
     <div className="p-2 flex flex-col gap-2 justify-between">
       {status !== "" && statusBanner(status)}
@@ -60,13 +59,13 @@ const Testcases = ({
         value={testcaseData}
         rows={4}
         onChange={(e) => setTestcaseData(e.target.value)}
-        className="test-cases w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md focus:outline-none"
+        className="test-cases w-full bg-primary p-2 border-[1px] border-[#525252] rounded-md focus:outline-none"
         style={{ resize: "none" }}
       />
       {stdOutput !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Stdout:</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+          <pre className="w-full bg-primary p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
             {stdOutput}
           </pre>
         </div>
@@ -74,7 +73,7 @@ const Testcases = ({
       {wrongTestCase !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Wrong Answer for:</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+          <pre className="w-full bg-primary p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
             {wrongTestCase}
           </pre>
         </div>
@@ -82,7 +81,7 @@ const Testcases = ({
       {expectedOutput !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Expected Output</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+          <pre className="w-full bg-primary p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
             {expectedOutput}
           </pre>
         </div>
@@ -90,7 +89,7 @@ const Testcases = ({
       {userOutput !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Your Output</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+          <pre className="w-full bg-primary p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
             {userOutput}
           </pre>
         </div>
@@ -98,7 +97,7 @@ const Testcases = ({
       {runError !== "" && (
         <div className="flex flex-col gap-2 py-1">
           <p className="text-lg font-medium">Error:</p>
-          <pre className="w-full bg-[#1a1a1a] p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
+          <pre className="w-full bg-primary p-2 border-[1px] border-[#525252] rounded-md whitespace-pre-wrap">
             {runError}
           </pre>
         </div>

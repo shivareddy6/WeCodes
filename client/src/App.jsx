@@ -1,18 +1,22 @@
-import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import Editor from "@monaco-editor/react";
-import { CustEditor } from "./components/Editor";
-import Navbar from "./components/Navbar";
 import Room from "./components/Room";
-import io from "socket.io-client";
+import { useSelector, useDispatch } from "react-redux";
+import { addPeople, fetchProblems } from "./store/slices/roomSlice";
+import { socket } from "./services/socket";
+import { useEffect, useState } from "react";
+import LandingPage from "./components/LandingPage";
 
 function App() {
-  let socket = io.connect("http://localhost:8080");
+  const dispatch = useDispatch();
+  const username = useSelector((state) => state.user.username);
+
+  useEffect(() => {
+    dispatch(fetchProblems());
+  }, []);
   return (
-    <div className="App flex flex-col gap-0 w-[100%] bg-[#1a1a1a]">
-      <Room socket={socket} />
+    <div className="App flex flex-col justify-center items-center gap-0 w-[100%] bg-primary">
+      {/* <button onClick={testFunc}>Test</button> */}
+      {username !== "" ? <Room socket={socket} /> : <LandingPage />}
     </div>
   );
 }

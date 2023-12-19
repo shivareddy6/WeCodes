@@ -10,9 +10,9 @@ const Message = ({ message, username }) => {
       {message.username !== "chatBot" && message.username !== username && <p className="text-sm">{message.username}</p>}
       <p
         className={
-          "w-fit p-2 my-1 rounded-xl  border-2 border-[#373737] " +
-          (message.username === "chatBot" && "bg-[#373737] font-semibold") +
-          (message.username === username && " bg-[#373737]")
+          "w-fit p-2 my-1 rounded-xl  border-2 border-tertiary " +
+          (message.username === "chatBot" && "bg-tertiary font-semibold") +
+          (message.username === username && " bg-tertiary")
         }
       >
         {message.message}

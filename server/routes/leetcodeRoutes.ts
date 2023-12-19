@@ -15,6 +15,10 @@ leetcodeRoutes.get(
   }
 );
 
+function sleep(ms: any) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 leetcodeRoutes.get(
   "/problem/:slug",
   checkAuth,
@@ -28,6 +32,7 @@ leetcodeRoutes.get(
     const snippets: any = await problem.getSnippets();
     problemDetails["snippets"] = snippets;
     // console.log(problemDetails);
+    // await sleep(100000)
     res.send(problemDetails);
   }
 );
