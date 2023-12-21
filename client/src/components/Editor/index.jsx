@@ -6,6 +6,8 @@ import { monacoThemes } from "../../constants";
 import { loader } from "@monaco-editor/react";
 import Testcases from "./Testcases";
 import "./styles.css";
+import { useSelector } from "react-redux";
+import { BACKEND_URL } from "../../config";
 
 // import data from "./customTheme.json";
 
@@ -27,7 +29,18 @@ const CustEditor = ({
   const [runError, setRunError] = useState("");
   const [codeRunning, setCodeRunning] = useState(false);
   const [wrongTestCase, setWrongTestCase] = useState("");
+  const username = useSelector((state) => state.user.username);
   // console.log("question in editor", questionLoading)
+  useEffect(() => {
+    setTestcaseData("");
+    setStatus("");
+    setUserOutput("");
+    setExpectedOutput("");
+    setStdOutput("");
+    setRunError("");
+    setCodeRunning("");
+    setWrongTestCase("");
+  }, [problemSlug]);
   useEffect(() => {
     if (problemSlug !== "") {
       // console.log("reload");
@@ -55,12 +68,12 @@ const CustEditor = ({
 
   const fetchAndSetSnippets = async () => {
     setEditorLoad(true);
-    const res = await fetch(
-      `http://localhost:8080/leetcode/problem/${problemSlug}/`,
-      {
-        method: "GET",
-      }
-    );
+    const res = await fetch(`${BACKEND_URL}/leetcode/problem/${problemSlug}/`, {
+      method: "GET",
+      headers: {
+        "ngrok-skip-browser-warning": "69420",
+      },
+    });
     const response = await res.json();
     // console.log(response)
     const newSnippets = {};
@@ -112,25 +125,36 @@ const CustEditor = ({
       input: curInput,
       language: curLanguage.leetcode_value,
       slug: problemSlug,
+      username: username,
     };
     // console.log(data);
-
-    const res = await fetch("http://localhost:8080/leetcode/submit-code/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: JSON.stringify(data),
-    });
-    const response = await res.json();
-    console.log(response);
-    setStatus(response.status_msg);
-    setWrongTestCase(response.input_formatted ? response.input_formatted : "");
-    setUserOutput(response.code_output ? response.code_output : "");
-    setExpectedOutput(response.expected_output ? response.expected_output : "");
-    setRunError(response.runtime_error ? response.runtime_error : "");
-
+    try {
+      const res = await fetch(`${BACKEND_URL}/leetcode/submit-code/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "ngrok-skip-browser-warning": "69420",
+        },
+        body: JSON.stringify(data),
+      });
+      const response = await res.json();
+      console.log(response);
+      if (response.status_msg) setStatus(response.status_msg);
+      else if (response.error) {
+        setStatus("User not authenticated, please login from extension");
+      }
+      setWrongTestCase(
+        response.input_formatted ? response.input_formatted : ""
+      );
+      setUserOutput(response.code_output ? response.code_output : "");
+      setExpectedOutput(
+        response.expected_output ? response.expected_output : ""
+      );
+      setRunError(response.runtime_error ? response.runtime_error : "");
+    } catch (err) {
+      console.log("run error", err);
+    }
     setCodeRunning(false);
   };
 
@@ -138,11 +162,14 @@ const CustEditor = ({
     setCodeRunning(true);
     console.log("called", curLanguage);
     // curInput = "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6\n[2,7,11,15,16]\n9";
+    console.log(username);
     const data = {
       code: curCode,
       input: curInput,
       language: curLanguage.leetcode_value,
       slug: problemSlug,
+      username: username,
+      test: "test",
     };
     // console.log(data);
 
@@ -152,32 +179,42 @@ const CustEditor = ({
     setRunError("");
     setStatus("");
     setWrongTestCase("");
-    const res = await fetch("http://localhost:8080/leetcode/run-code/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: JSON.stringify(data),
-    });
-    const response = await res.json();
-    if (response.status_msg === "Accepted") {
-      if (response.correct_answer) setStatus("Testcases Passed");
-      else setStatus("Testcases failed");
-    } else setStatus(response.status_msg);
-    console.log(response);
-
-    let outputStr = "";
-    response.code_answer?.map((ans) => (outputStr += ans + "\n"));
-    setUserOutput(outputStr);
-    outputStr = "";
-    response.expected_code_answer?.map((ans) => (outputStr += ans + "\n"));
-    setExpectedOutput(outputStr);
-    outputStr = "";
-    response.code_output?.map((ans) => (outputStr += ans + "\n"));
-    setStdOutput(outputStr);
-    setRunError(response.runtime_error ? response.runtime_error : "");
-
+    try {
+      const res = await fetch(`${BACKEND_URL}/leetcode/run-code/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "ngrok-skip-browser-warning": "69420",
+        },
+        body: JSON.stringify(data),
+      });
+      console.log("raw output", res);
+      const response = await res.json();
+      if (response.status_msg === "Accepted") {
+        if (response.correct_answer) setStatus("Testcases Passed");
+        else setStatus("Testcases failed");
+      } else if (response.error) {
+        setStatus("User not authenticated, please login from extension");
+      } else setStatus(response.status_msg);
+      console.log(response);
+      // if (response.error) {
+      //   setRunError("user not authenticated");
+      //   return ;
+      // }
+      let outputStr = "";
+      response.code_answer?.map((ans) => (outputStr += ans + "\n"));
+      setUserOutput(outputStr);
+      outputStr = "";
+      response.expected_code_answer?.map((ans) => (outputStr += ans + "\n"));
+      setExpectedOutput(outputStr);
+      outputStr = "";
+      response.code_output?.map((ans) => (outputStr += ans + "\n"));
+      setStdOutput(outputStr);
+      setRunError(response.runtime_error ? response.runtime_error : "");
+    } catch (err) {
+      console.log("run error", err);
+    }
     setCodeRunning(false);
   };
 
@@ -269,4 +306,5 @@ const CustEditor = ({
   );
 };
 
-export { CustEditor };
+const MemoizedCustEditor = React.memo(CustEditor);
+export { MemoizedCustEditor as CustEditor };

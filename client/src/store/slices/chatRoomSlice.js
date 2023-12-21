@@ -1,4 +1,5 @@
 import { createSlice, current } from "@reduxjs/toolkit";
+import { addPeople } from "./roomSlice";
 
 const initialState = {
   people: [],
@@ -12,10 +13,13 @@ export const chatRoomSlice = createSlice({
   name: "chatRoom",
   initialState,
   reducers: {
+    updatePeople: (state, action) => {
+      state.people = action.payload;
+    },
   },
-  extraReducers: {}
+  extraReducers: {},
 });
 
-export const { } = chatRoomSlice.actions;
+export const {updatePeople} = chatRoomSlice.actions;
 
 export default chatRoomSlice.reducer;

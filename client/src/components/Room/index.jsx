@@ -5,14 +5,14 @@ import Split from "react-split-grid";
 import "./styles.css";
 import { loader } from "@monaco-editor/react";
 import ChatWindow from "../ChatWindow";
-import io from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProblems } from "../../store/slices/roomSlice";
+import { socket } from "../../services/socket";
 
-const Room = ({ socket }) => {
+const Room = () => {
   const problems = useSelector((state) => state.room.allProblems);
   const problemsLoading = useSelector((state) => state.room.isLoading);
   const currentProblem = useSelector((state) => state.room.currentProblem);
+  const dispatch = useDispatch();
 
   const [problemSlug, setProblemSlug] = useState("");
   const [language, setLanguage] = useState({
@@ -24,10 +24,11 @@ const Room = ({ socket }) => {
   });
   const [theme, setTheme] = useState("");
   const [questionLoading, setQuestionLoading] = useState(false);
-  const username = useSelector((state) => state.user.username)
-  console.log("username chat", username)
+  const username = useSelector((state) => state.user.username);
+  console.log("username chat", username);
   useEffect(() => {
-    joinroom();
+    console.log("into use effect", username);
+    // joinroom();
   }, []);
 
   useEffect(() => {
@@ -44,65 +45,61 @@ const Room = ({ socket }) => {
   };
   loadTheme();
 
-  const joinroom = () => {
-    if (username !== "") {
-      console.log("sending join room request");
-      socket.emit("join_room", { username: username, room: "room" });
-    }
-  };
   console.log("probs", problemsLoading, problems, problemSlug, "|");
   if (problemsLoading)
-    return <div className="flex justify-center items-center w-full h-full">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center w-full h-full">
+        Loading...
+      </div>
+    );
 
   return (
     <div className="w-full h-full">
       <Split
-        render={({ getGridProps, getGutterProps }) => { 
-          console.log("grid", getGridProps());
-          
+        render={({ getGridProps, getGutterProps }) => {
           return (
-          <div className="room-grid h-[100%] pt-2"  style={{...(getGridProps().style), gridTemplateRows: "1fr 10px"}}>
-            <QuestionDisplay
-              problemSlug={problemSlug}
-              problems={problems}
-              setProblemSlug={setProblemSlug}
-              questionLoading={questionLoading}
-              setQuestionLoading={setQuestionLoading}
-            />
             <div
-              className="gutter flex justify-center items-center gutter-vertical"
-              {...getGutterProps("column", 1)}
+              className="room-grid h-[100%] pt-2"
+              style={{ ...getGridProps().style, gridTemplateRows: "1fr 10px" }}
             >
-              <img
-                src="https://split.js.org/vertical.png"
-                style={{ pointerEvents: "none" }}
+              <QuestionDisplay
+                problemSlug={problemSlug}
+                problems={problems}
+                setProblemSlug={setProblemSlug}
+                questionLoading={questionLoading}
+                setQuestionLoading={setQuestionLoading}
               />
-            </div>
-            <CustEditor
-              problemSlug={problemSlug}
-              language={language}
-              setLanguage={setLanguage}
-              theme={theme}
-              questionLoading={questionLoading}
-              setQuestionLoading={setQuestionLoading}
-            />
-            <div
-              className="gutter flex justify-center items-center gutter-vertical"
-              {...getGutterProps("column", 3)}
-            >
-              <img
-                src="https://split.js.org/vertical.png"
-                style={{ pointerEvents: "none" }}
+              <div
+                className="gutter flex justify-center items-center gutter-vertical"
+                {...getGutterProps("column", 1)}
+              >
+                <img
+                  src="https://split.js.org/vertical.png"
+                  style={{ pointerEvents: "none" }}
+                />
+              </div>
+              <CustEditor
+                problemSlug={problemSlug}
+                language={language}
+                setLanguage={setLanguage}
+                theme={theme}
+                questionLoading={questionLoading}
+                setQuestionLoading={setQuestionLoading}
               />
+              <div
+                className="gutter flex justify-center items-center gutter-vertical"
+                {...getGutterProps("column", 3)}
+              >
+                <img
+                  src="https://split.js.org/vertical.png"
+                  style={{ pointerEvents: "none" }}
+                />
+              </div>
+              <ChatWindow username={username} socket={socket} />
+              <div />
             </div>
-            <ChatWindow
-              username={username}
-              socket={socket}
-            />
-            <div />
-          </div>
-        )}
-      }
+          );
+        }}
       />
     </div>
   );

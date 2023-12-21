@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import "./styles.css";
 import ReactHtmlParser from "react-html-parser";
 import "./leetcode-display.css";
 import DisplayTags from "./displayTags";
 import Dropdown from "../Dropdown";
-import {useDispatch, useSelector} from "react-redux"
+import { useDispatch, useSelector } from "react-redux";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,33 +13,46 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { nextProblem, prevProblem } from "../../store/slices/roomSlice";
+import { BACKEND_URL } from "../../config";
 
-const QuestionDisplay = ({
+const QuestionDisplay = memo(({
   problemSlug,
   problems,
   setProblemSlug,
   questionLoading,
   setQuestionLoading,
 }) => {
-  console.log("problem slug", problemSlug);
+  console.log("hellooooo")
+  useEffect(() => {
+    console.log("props changed");
+  }, [
+    problemSlug,
+    problems,
+    setProblemSlug,
+    questionLoading,
+    setQuestionLoading,
+  ]);
   const [display, setDisplay] = useState("<strong>Loading...</strong>");
   // const [loading, setLoading] = useState(true);
   const [tags, setTags] = useState([]);
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
   const dispatch = useDispatch();
-  const currentProblem = useSelector(state => state.room.currentProblem)
+  const currentProblem = useSelector((state) => state.room.currentProblem);
   // const [snippets, setSnippets] = useState({});
   useEffect(() => {
     const loadData = async () => {
       setQuestionLoading(true);
-      fetch(`http://localhost:8080/leetcode/problem/${problemSlug}/`, {
+      fetch(`${BACKEND_URL}/leetcode/problem/${problemSlug}/`, {
         method: "GET",
+        headers: {
+          "ngrok-skip-browser-warning": "69420",
+        },
       })
         .then(async (res) => {
-          // console.log("inside fetch");
+          console.log("inside fetch", res.body);
           const newDisplay = await res.json();
-          // console.log(newDisplay);
+          console.log(newDisplay);
           setTags(newDisplay.tags);
           setDisplay(newDisplay.content);
           // const newSnippets = {};
@@ -154,22 +167,30 @@ const QuestionDisplay = ({
                   <div
                     className={
                       "left-icon-container w-12 h-12 flex items-center justify-center rounded-[20px] cursor-pointer hover:bg-tertiary " +
-                      (currentProblem === 0 && "opacity-20 hover:bg-inherit cursor-default")
+                      (currentProblem === 0 &&
+                        "opacity-20 hover:bg-inherit cursor-default")
                     }
                   >
-                    <FaAngleLeft className="h-[25px]" onClick={() => {
-                      dispatch(prevProblem())
-                    }}/>
+                    <FaAngleLeft
+                      className="h-[25px]"
+                      onClick={() => {
+                        dispatch(prevProblem());
+                      }}
+                    />
                   </div>
                   <div
                     className={
                       "right-icon-container w-12 h-12 flex items-center justify-center rounded-[20px] cursor-pointer hover:bg-tertiary " +
-                      (currentProblem === 3 && "opacity-20 hover:bg-inherit cursor-default")
+                      (currentProblem === 3 &&
+                        "opacity-20 hover:bg-inherit cursor-default")
                     }
                   >
-                    <FaAngleRight className="h-[25px]" onClick={() => {
-                      dispatch(nextProblem())
-                    }} />
+                    <FaAngleRight
+                      className="h-[25px]"
+                      onClick={() => {
+                        dispatch(nextProblem());
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -187,6 +208,6 @@ const QuestionDisplay = ({
       </div>
     </div>
   );
-};
+});
 
 export default QuestionDisplay;

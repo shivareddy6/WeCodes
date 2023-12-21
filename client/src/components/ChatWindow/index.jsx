@@ -1,37 +1,40 @@
 import React, { useEffect, useState } from "react";
 import Message from "./Message";
-import { useSelector } from "react-redux";
-
-const ChatWindow = ({ socket }) => {
+import { useDispatch, useSelector } from "react-redux";
+import { updatePeople } from "../../store/slices/chatRoomSlice";
+import randomColor from "randomcolor";
+import PropleList from "./propleList";
+import { socket } from "../../services/socket";
+const ChatWindow = () => {
   function formatDateFromTimestamp(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleString();
   }
-  const room = useSelector(state => state.chatRoom.roomName)
+  console.log(socket);
+  const room = useSelector((state) => state.chatRoom.roomName);
   const [messagesRecieved, setMessagesReceived] = useState([]);
   const [message, setMessage] = useState("");
   // const [username, setUsername] = useState("shiva");
   const username = useSelector((state) => state.user.username);
   // const [room, setRoom] = useState("room1");
   const [joined, setJoined] = useState(false);
+  const dispatch = useDispatch();
 
   const joinroom = () => {
-    setJoined(true);
     if (username !== "") {
-      console.log("sending join room request");
-      socket.emit("join_room", { username });
+      // console.log("sending join room request", username);
+      socket.emit("join_room", { username: username, room: "room" });
+      socket.on("chatroom_users", (data) => {
+        // console.log("chatroom_users", data);
+        dispatch(updatePeople(data));
+      });
     }
   };
 
   useEffect(() => {
-    if (socket !== undefined) {
-      // joinroom();
-    }
-  });
-  useEffect(() => {
+    // console.log("chant window use effect");
     if (socket !== undefined) {
       socket.on("receive_message", (data) => {
-        console.log(data);
         setMessagesReceived((state) => [
           ...state,
           {
@@ -42,10 +45,19 @@ const ChatWindow = ({ socket }) => {
         ]);
       });
 
+      socket.on("chatroom_users", (data) => {
+        console.log("chatroom_users", data);
+        dispatch(updatePeople(data));
+      });
+
       return () => socket.off("receive_message");
     }
     // Remove event listener on component unmount
   }, [socket]);
+
+  useEffect(() => {
+    joinroom();
+  }, []);
 
   const sendMessage = (message) => {
     if (message !== "") {
@@ -61,7 +73,7 @@ const ChatWindow = ({ socket }) => {
     }
   };
 
-  const people = [1, 2, 3, 4, 5];
+  const people = useSelector((state) => state.chatRoom.people);
 
   return (
     <div className="flex flex-col h-full overflow-auto">
@@ -69,20 +81,13 @@ const ChatWindow = ({ socket }) => {
         <p className="">Current user details</p>
       </div>
       <div className="people-div flex flex-col gap-2 mb-4">
-        <p className="text-sm text-gray-400">1 people</p>
-        <div className="people-list flex gap-2">
-          {people.map((person, ind) => (
-            <div
-              key={`person-${ind}`}
-              className="avatar h-10 w-10 min-w-[35px] bg-gray-300 rounded-full"
-            ></div>
-          ))}
-        </div>
+        <p className="text-sm text-gray-400">{people.length} people</p>
+        <PropleList />
         <button className="px-4 py-2 hover:bg-[#464646] rounded-[8px] bg-tertiary active:bg-tertiary">
           Scoreboard
         </button>
       </div>
-      <div className="p-[6px] flex flex-col bg-secondary w-full flex-1 justify-between gap-2">
+      <div className="p-[6px] flex flex-col bg-secondary w-full flex-1 justify-between gap-2 overflow-y-scroll scrollbar-none">
         <div className="flex flex-col overflow-auto scrollbar-thin scrollbar-thumb-[#525252] scrollbar-track-transparent pr-2 scrollbar-thumb-rounded-full">
           {messagesRecieved.map((message, ind) => (
             <Message
@@ -122,4 +127,4 @@ const ChatWindow = ({ socket }) => {
   );
 };
 
-export default ChatWindow;
+export default React.memo(ChatWindow);

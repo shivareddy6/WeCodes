@@ -16,7 +16,7 @@ export const fetchProblems = createAsyncThunk(
     await sleep(2000);
     return [
       "palindrome-number",
-      "largest-color-value-in-a-directed-graph",
+      "longest-palindromic-substring",
       "valid-parentheses",
       "image-smoother",
     ];
@@ -27,10 +27,6 @@ export const roomSlice = createSlice({
   name: "room",
   initialState,
   reducers: {
-    addPeople: (state, action) => {
-      return { ...state, people: [...state.people, action.payload] };
-    },
-
     nextProblem: (state) => {
       if (state.currentProblem + 1 < state.allProblems.length) {
         return { ...state, currentProblem: state.currentProblem + 1 };

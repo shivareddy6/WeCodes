@@ -7,7 +7,7 @@ const initialState = {
 };
 
 export const userSlice = createSlice({
-  name: "chatRoom",
+  name: "user",
   initialState,
   reducers: {
     setUserName: (state, action) => {

@@ -7,12 +7,17 @@ const Message = ({ message, username }) => {
   };
   return (
     <div className={"flex flex-col w-full my-2 " + giveStyle()}>
-      {message.username !== "chatBot" && message.username !== username && <p className="text-sm">{message.username}</p>}
+      {message.username !== "chatBot" && message.username !== username && (
+        <p className="text-sm text-[#9a9a9a]">{message.username}</p>
+      )}
       <p
         className={
-          "w-fit p-2 my-1 rounded-xl  border-2 border-tertiary " +
-          (message.username === "chatBot" && "bg-tertiary font-semibold") +
-          (message.username === username && " bg-tertiary")
+          "w-fit p-2 my-1 rounded-xl border-2 border-tertiary " +
+          (message.username === "chatBot"
+            ? "bg-tertiary font-semibold"
+            : message.username === username
+            ? " bg-tertiary rounded-tr-none"
+            : " rounded-tl-none")
         }
       >
         {message.message}

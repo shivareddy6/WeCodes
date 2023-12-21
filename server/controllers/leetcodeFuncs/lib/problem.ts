@@ -144,13 +144,13 @@ export class NewProblem {
   runCode = async (lang: string, code: string, input: string) => {
     // console.log("called run");
     await this.setTitleDetails();
-    console.log("title details set", this.id);
-    console.log({
-      data_input: input,
-      lang: lang,
-      question_id: this.id,
-      typed_code: code,
-    });
+    // console.log("title details set", this.id);
+    // console.log({
+    //   data_input: input,
+    //   lang: lang,
+    //   question_id: this.id,
+    //   typed_code: code,
+    // });
     const runResponse = await httpRequest(
       {
         url: apiRoutes.run.replace("$slug", this.slug),
@@ -163,10 +163,10 @@ export class NewProblem {
         },
       },
       this.credit
-    );
-    console.log("run response ", runResponse);
+    )
+    // console.log("run response ", runResponse);
     const interpret_id = runResponse.interpret_id;
-    console.log("submitted the code to run ", interpret_id);
+    // console.log("submitted the code to run ", interpret_id);
     let runDetails: any = { state: "PENDING" };
 
     return new Promise((resolve: any, reject: any) => {
@@ -212,7 +212,7 @@ export class NewProblem {
     );
 
     const submission_id = runResponse.submission_id;
-    console.log("submitted the code to submit ", submission_id);
+    // console.log("submitted the code to submit ", submission_id);
     let runDetails: any = { state: "PENDING" };
 
     return new Promise((resolve: any, reject: any) => {
