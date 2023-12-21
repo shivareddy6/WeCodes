@@ -3,6 +3,7 @@ import { checkAuth } from "../middleware/authMiddleware";
 import { NewProblem } from "../controllers/leetcodeFuncs/lib/problem";
 import { getAllProblems } from "../controllers/leetcodeFuncs";
 import { Credit } from "../controllers/leetcodeFuncs/interfaces";
+import { sendMessageFromBot } from "..";
 
 const leetcodeRoutes = express.Router();
 
@@ -65,12 +66,20 @@ leetcodeRoutes.post(
   async (req: Request, res: Response) => {
     const leetcode_credits: Credit = req.body.credits;
     // console.log("creds", leetcode_credits);
-    const { slug, code, language, input } = req.body;
+    const { username, slug, code, language, input } = req.body;
     // console.log(code, language, input);
-    let details;
+    let details: any;
     try {
       const problem = new NewProblem(slug, leetcode_credits);
       details = await problem.submitCode(language, code, input);
+      if (details.status_msg === "Accepted") {
+        sendMessageFromBot(
+          "room",
+          `${username} has solved ${problem.title} faster than ${Math.round(
+            details.runtime_percentile
+          )}%`
+        );
+      }
     } catch (err) {
       console.log(err);
       details = { error: "something went wrong", state: "PENDING" };

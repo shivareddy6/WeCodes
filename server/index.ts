@@ -49,7 +49,7 @@ app.post("/addUser", async (req: Request, res: Response) => {
 });
 
 app.post("/checkUser", async (req: Request, res: Response) => {
-  console.log("user touched");
+  // console.log("user touched");
   const { username } = req.body;
   const response = await healthCheck(username);
   res.send(response);
@@ -61,13 +61,24 @@ let allUsers: Array<any> = [];
 // const room = "myRoom";
 
 const filterSocketConnections = (socket: Socket, username: String) => {
-  console.log("before filtering", allUsers);
+  // console.log("before filtering", allUsers);
   allUsers = allUsers.filter((user) => user.username !== username);
-  console.log("after filtering", allUsers);
+  // console.log("after filtering", allUsers);
+};
+
+export const sendMessageFromBot = (room: string, message: String) => {
+  const __createdtime__ = Date.now();
+  const data = { message, username: CHAT_BOT, __createdtime__, room };
+  // console.log(data);
+  // console.log(io.in(room));
+
+  const socketsInRoom = io.sockets.adapter.rooms.get(room);
+
+  io.in(room).emit("receive_message", data);
 };
 
 const removeUserFromRoom = (socket: Socket) => {
-  console.log("all users", allUsers, socket.id);
+  // console.log("all users", allUsers, socket.id);
   const userDetails = allUsers.find((user) => user.id === socket.id);
   allUsers = allUsers.filter((user) => user.id !== socket.id);
   return userDetails;
@@ -106,7 +117,7 @@ io.on("connection", (socket) => {
       username: CHAT_BOT,
       __createdtime__,
     });
-    console.log("sending welcome message")
+    // console.log("sending welcome message");
     socket.emit("receive_message", {
       message: `Welcome ${username}`,
       username: CHAT_BOT,
@@ -115,7 +126,7 @@ io.on("connection", (socket) => {
     filterSocketConnections(socket, username);
     chatRoom = room;
     allUsers.push({ id: socket.id, username, room });
-    console.log("all users after addition", allUsers);
+    // console.log("all users after addition", allUsers);
     let chatRoomUsers = allUsers.filter((user: any) => user.room === room);
     socket.to(room).emit("chatroom_users", chatRoomUsers);
     socket.emit("chatroom_users", chatRoomUsers);
@@ -132,7 +143,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("end", () => {
-    console.log("second");
+    // console.log("second");
     disconnectUser(socket);
     socket.disconnect();
   });
