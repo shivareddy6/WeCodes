@@ -1,10 +1,11 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { leetcodeRoutes } from "./routes/leetcodeRoutes";
+import { getRandomQuestions, leetcodeRoutes } from "./routes/leetcodeRoutes";
 import { Server, ServerOptions, Socket } from "socket.io";
 import http from "http";
 import { addTokens, healthCheck } from "./controllers/userFuncs/tokenData";
+import { NewQuesstionsObj } from "./interfaces";
 
 dotenv.config();
 
@@ -101,6 +102,18 @@ const disconnectUser = (socket: Socket) => {
   socket.to(room).emit("chatroom_users", chatRoomUsers);
 };
 
+const newQuestionsResponses: Record<string, any> = {};
+// implement this for not serving multiple new questions requests
+const newQuestionsRequestUsernames: Record<string, number> = {};
+const newQuesstionsObj: NewQuesstionsObj = {};
+/*
+{
+  initiator: string,
+  maxResponseTime: number,
+  value: number,
+}
+*/
+
 io.on("connection", (socket) => {
   console.log(`User connected ${socket.id}`);
   // socket.disconnect();
@@ -137,13 +150,60 @@ io.on("connection", (socket) => {
     io.in(room).emit("receive_message", data); // Send to all users in room, including sender
   });
 
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  socket.on("new_questions", async (data, callback) => {
+    const { room, username } = data;
+    if (
+      !newQuesstionsObj?.room ||
+      newQuesstionsObj.room.maxResponseTime < Date.now()
+    ) {
+      newQuesstionsObj[room] = {
+        initiator: username,
+        value: 1,
+        maxResponseTime: Date.now() + 10000,
+      };
+      newQuestionsResponses[room] = 1;
+      socket.to(room).emit("new_questions_request", { username });
+      await sleep(10000);
+      if (newQuesstionsObj[room].value >= 0) {
+        const newQuestions = getRandomQuestions();
+        io.in(room).emit("update_room_questions", newQuestions);
+      }
+    }
+  });
+
+  socket.on("new_questions_response", (data) => {
+    const { username, room, status, time } = data;
+    let __createdtime__ = Date.now();
+    if ((time || __createdtime__) <= newQuesstionsObj.room.maxResponseTime) {
+      socket.to(room).emit("receive_message", {
+        message: `${username} has ${status}ed new questions request`,
+        __createdtime__,
+        username: CHAT_BOT,
+      });
+      if (status === "accept") {
+        newQuestionsResponses[room] += 1;
+      } else {
+        newQuestionsResponses[room] -= 1;
+      }
+    }
+  });
+
+  socket.on("new_questions_result", (data, callback) => {
+    const { room } = data;
+    const extraVotes = newQuestionsResponses[room];
+    callback(extraVotes);
+  });
+
   socket.once("disconnecting", (reason) => {
     disconnectUser(socket);
     socket.disconnect(true);
   });
 
   socket.on("end", () => {
-    // console.log("second");
     disconnectUser(socket);
     socket.disconnect();
   });

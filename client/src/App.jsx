@@ -9,10 +9,6 @@ import UsernameValidationWrapper from "./components/UsernameValidationWrapper";
 
 function App() {
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchProblems());
-  }, []);
   return (
     <div className="App flex flex-col justify-center items-center gap-0 w-[100%] bg-primary">
       <Routes>

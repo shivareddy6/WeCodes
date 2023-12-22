@@ -8,7 +8,7 @@ const Message = ({ message, username }) => {
   return (
     <div className={"flex flex-col w-full my-2 " + giveStyle()}>
       {message.username !== "chatBot" && message.username !== username && (
-        <p className="text-sm text-[#9a9a9a]">{message.username}</p>
+        <p className="text-sm text-gray-300">{message.username}</p>
       )}
       <p
         className={
@@ -16,8 +16,8 @@ const Message = ({ message, username }) => {
           (message.username === "chatBot"
             ? "bg-tertiary font-semibold"
             : message.username === username
-            ? " bg-tertiary rounded-tr-none"
-            : " rounded-tl-none")
+            ? " bg-[#38419d] rounded-tr-none border-0"
+            : " rounded-tl-none bg-black")
         }
       >
         {message.message}

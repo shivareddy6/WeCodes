@@ -5,12 +5,18 @@ import { updatePeople } from "../../store/slices/chatRoomSlice";
 import randomColor from "randomcolor";
 import PropleList from "./propleList";
 import { socket } from "../../services/socket";
+import NewRoomRequest from "./NewRoomRequest";
+import { fetchProblems, updateAllProblems } from "../../store/slices/roomSlice";
 const ChatWindow = () => {
   function formatDateFromTimestamp(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleString();
   }
-  console.log(socket);
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   const room = useSelector((state) => state.chatRoom.roomName);
   const [messagesRecieved, setMessagesReceived] = useState([]);
   const [message, setMessage] = useState("");
@@ -32,7 +38,7 @@ const ChatWindow = () => {
   };
 
   useEffect(() => {
-    // console.log("chant window use effect");
+    console.log("chant window use effect");
     if (socket !== undefined) {
       socket.on("receive_message", (data) => {
         setMessagesReceived((state) => [
@@ -50,6 +56,22 @@ const ChatWindow = () => {
         dispatch(updatePeople(data));
       });
 
+      socket.on("new_questions_request", (data) => {
+        setMessagesReceived((state) => [
+          ...state,
+          {
+            newRoomRequest: true,
+            message: data.message,
+            username: data.username,
+            __createdtime__: data.__createdtime__,
+          },
+        ]);
+      });
+
+      socket.on("update_room_questions", (data) => {
+        dispatch(updateAllProblems(data));
+      });
+      console.log("socket changed");
       return () => socket.off("receive_message");
     }
     // Remove event listener on component unmount
@@ -75,6 +97,15 @@ const ChatWindow = () => {
 
   const people = useSelector((state) => state.chatRoom.people);
 
+  const sendNewQuestionsRequest = async () => {
+    socket.emit("new_questions", { room: "room", username });
+  };
+
+  const sendNewQuestionsResponse = ({ status }) => {
+    socket.emit("new_questions_response", { room: "room", username, status });
+    console.log("seding from socket", { room: "room", username, status });
+  };
+
   return (
     <div className="flex flex-col h-full overflow-auto">
       <div className="h-[42px]">
@@ -83,19 +114,30 @@ const ChatWindow = () => {
       <div className="people-div flex flex-col gap-2 mb-4">
         <p className="text-sm text-gray-400">{people.length} people</p>
         <PropleList />
-        <button className="px-4 py-2 hover:bg-[#464646] rounded-[8px] bg-tertiary active:bg-tertiary">
-          Scoreboard
+        <button
+          className="px-4 py-2 hover:bg-[#464646] rounded-[8px] bg-tertiary active:bg-tertiary"
+          onClick={() => {
+            sendNewQuestionsRequest();
+          }}
+        >
+          New Questions
         </button>
       </div>
       <div className="p-[6px] flex flex-col bg-secondary w-full flex-1 justify-between gap-2 overflow-y-scroll scrollbar-none">
         <div className="flex flex-col overflow-auto scrollbar-thin scrollbar-thumb-[#525252] scrollbar-track-transparent pr-2 scrollbar-thumb-rounded-full">
-          {messagesRecieved.map((message, ind) => (
-            <Message
-              key={"message" + ind}
-              message={message}
-              username={username}
-            />
-          ))}
+          {messagesRecieved.map((message, ind) =>
+            message.newRoomRequest ? (
+              <NewRoomRequest
+                sendNewQuestionsResponse={sendNewQuestionsResponse}
+              />
+            ) : (
+              <Message
+                key={"message" + ind}
+                message={message}
+                username={username}
+              />
+            )
+          )}
           <div />
         </div>
         <div>
@@ -117,6 +159,7 @@ const ChatWindow = () => {
             >
               Send Message
             </button>
+            <button onClick={sendNewQuestionsRequest}>test</button>
           </div>
           {/* 
           <div className="flex w-full justify-end">

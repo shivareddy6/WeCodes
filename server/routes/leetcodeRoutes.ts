@@ -4,8 +4,23 @@ import { NewProblem } from "../controllers/leetcodeFuncs/lib/problem";
 import { getAllProblems } from "../controllers/leetcodeFuncs";
 import { Credit } from "../controllers/leetcodeFuncs/interfaces";
 import { sendMessageFromBot } from "..";
+import { problems } from "../data/problems";
 
 const leetcodeRoutes = express.Router();
+
+export function getRandomQuestions(): string[] {
+  const questions = problems;
+  const selectedQuestions: Array<string> = [];
+  for (const difficulty of ["Easy", "Medium", "Medium", "Hard"]) {
+    const difficultyQuestions = questions[difficulty];
+    const randomQuestion =
+      difficultyQuestions[
+        Math.floor(Math.random() * difficultyQuestions.length)
+      ];
+    selectedQuestions.push(randomQuestion);
+  }
+  return selectedQuestions;
+}
 
 leetcodeRoutes.get(
   "/problems",
@@ -15,6 +30,11 @@ leetcodeRoutes.get(
     res.send(await getAllProblems(leetcode_credits));
   }
 );
+
+leetcodeRoutes.get("/roomProblems", (req: Request, res: Response) => {
+  const probs = getRandomQuestions();
+  res.send(probs);
+});
 
 function sleep(ms: any) {
   return new Promise((resolve) => setTimeout(resolve, ms));

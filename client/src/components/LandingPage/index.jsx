@@ -71,9 +71,9 @@ const LandingPage = () => {
         className="logo flex text-[50px] gap-2 font-bold"
         style={{ fontFamily: "arial" }}
       >
-        <p className="py-2 pr-0">Coding</p>
-        <p className="px-4 py-2 rounded-lg bg-[#fa971f] text-black flex items-center justify-center">
-          buddies
+        <p className="pr-0">WE</p>
+        <p className="px-2 text-[35px] rounded-lg bg-[#fa971f] text-black flex items-center justify-center">
+          CODES
         </p>
       </div>
 
