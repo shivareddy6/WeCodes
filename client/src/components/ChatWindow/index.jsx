@@ -7,6 +7,7 @@ import PropleList from "./propleList";
 import { socket } from "../../services/socket";
 import NewRoomRequest from "./NewRoomRequest";
 import { fetchProblems, updateAllProblems } from "../../store/slices/roomSlice";
+import ProgressBar from "../ProgressBar";
 const ChatWindow = () => {
   function formatDateFromTimestamp(timestamp) {
     const date = new Date(timestamp);
@@ -24,6 +25,7 @@ const ChatWindow = () => {
   const username = useSelector((state) => state.user.username);
   // const [room, setRoom] = useState("room1");
   const [joined, setJoined] = useState(false);
+  const [disableNewQuestions, setDisableNewQuestions] = useState(false);
   const dispatch = useDispatch();
 
   const joinroom = () => {
@@ -57,6 +59,11 @@ const ChatWindow = () => {
       });
 
       socket.on("new_questions_request", (data) => {
+        // console.log("count", data.maxResponseTime - Date.now());
+        setDisableNewQuestions(true);
+        setTimeout(() => {
+          setDisableNewQuestions(false);
+        }, data.maxResponseTime - Date.now() + 3000);
         setMessagesReceived((state) => [
           ...state,
           {
@@ -64,6 +71,7 @@ const ChatWindow = () => {
             message: data.message,
             username: data.username,
             __createdtime__: data.__createdtime__,
+            maxResponseTime: data.maxResponseTime,
           },
         ]);
       });
@@ -99,11 +107,20 @@ const ChatWindow = () => {
 
   const sendNewQuestionsRequest = async () => {
     socket.emit("new_questions", { room: "room", username });
+    setDisableNewQuestions(true);
+    setTimeout(() => {
+      setDisableNewQuestions(false);
+    }, 15000);
   };
 
   const sendNewQuestionsResponse = ({ status }) => {
-    socket.emit("new_questions_response", { room: "room", username, status });
-    console.log("seding from socket", { room: "room", username, status });
+    console.log("res", { room: "room", username, status });
+    socket.emit("new_questions_response", {
+      room: "room",
+      username,
+      status,
+      time: Date.now(),
+    });
   };
 
   return (
@@ -115,10 +132,15 @@ const ChatWindow = () => {
         <p className="text-sm text-gray-400">{people.length} people</p>
         <PropleList />
         <button
-          className="px-4 py-2 hover:bg-[#464646] rounded-[8px] bg-tertiary active:bg-tertiary"
+          className={
+            "px-4 py-2 hover:bg-[#464646] rounded-[8px] bg-tertiary active:bg-tertiary " +
+            (disableNewQuestions &&
+              "bg-[#464646] hover:bg-[464646] cursor-not-allowed active:bg-[#464646]")
+          }
           onClick={() => {
             sendNewQuestionsRequest();
           }}
+          disabled={disableNewQuestions}
         >
           New Questions
         </button>
@@ -129,6 +151,7 @@ const ChatWindow = () => {
             message.newRoomRequest ? (
               <NewRoomRequest
                 sendNewQuestionsResponse={sendNewQuestionsResponse}
+                maxResponseTime={message.maxResponseTime}
               />
             ) : (
               <Message
@@ -159,7 +182,6 @@ const ChatWindow = () => {
             >
               Send Message
             </button>
-            <button onClick={sendNewQuestionsRequest}>test</button>
           </div>
           {/* 
           <div className="flex w-full justify-end">

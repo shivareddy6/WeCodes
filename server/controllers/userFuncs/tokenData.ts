@@ -37,6 +37,7 @@ export const addTokens = async (csrfToken: string, session: string) => {
     return {
       message: `${currentUserDetails.username} details added`,
       username: currentUserDetails.username,
+      sessionToken: currentUserDetails.username, // session token to login from front-end
     };
   } else {
     return { error: "user not found" };

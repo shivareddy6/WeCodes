@@ -40,10 +40,10 @@ const io = new Server(httpServer, {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello");
+  res.send("Server is running perfectly!");
 });
 
-app.post("/addUser", async (req: Request, res: Response) => {
+app.post("/auth/updateTokens", async (req: Request, res: Response) => {
   const { csrfToken, session } = req.body;
   const response = await addTokens(csrfToken, session);
   res.send(response);
@@ -102,9 +102,6 @@ const disconnectUser = (socket: Socket) => {
   socket.to(room).emit("chatroom_users", chatRoomUsers);
 };
 
-const newQuestionsResponses: Record<string, any> = {};
-// implement this for not serving multiple new questions requests
-const newQuestionsRequestUsernames: Record<string, number> = {};
 const newQuesstionsObj: NewQuesstionsObj = {};
 /*
 {
@@ -116,11 +113,8 @@ const newQuesstionsObj: NewQuesstionsObj = {};
 
 io.on("connection", (socket) => {
   console.log(`User connected ${socket.id}`);
-  // socket.disconnect();
   socket.on("join_room", (data) => {
-    // console.log("in", data);
     const { username, room } = data;
-    // console.log("joining room", socket.id, username);
     socket.join(room);
 
     let __createdtime__ = Date.now(); // Current timestamp
@@ -154,7 +148,7 @@ io.on("connection", (socket) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  socket.on("new_questions", async (data, callback) => {
+  socket.on("new_questions", async (data, callback) => { 
     const { room, username } = data;
     if (
       !newQuesstionsObj?.room ||
@@ -165,11 +159,14 @@ io.on("connection", (socket) => {
         value: 1,
         maxResponseTime: Date.now() + 10000,
       };
-      newQuestionsResponses[room] = 1;
-      socket.to(room).emit("new_questions_request", { username });
+      socket.to(room).emit("new_questions_request", {
+        username,
+        maxResponseTime: newQuesstionsObj[room].maxResponseTime,
+      });
       await sleep(10000);
-      if (newQuesstionsObj[room].value >= 0) {
-        const newQuestions = getRandomQuestions();
+      console.log("votes", newQuesstionsObj[room].value);
+      if (newQuesstionsObj[room].value > 0) {
+        const newQuestions = getRandomQuestions(room);
         io.in(room).emit("update_room_questions", newQuestions);
       }
     }
@@ -178,24 +175,18 @@ io.on("connection", (socket) => {
   socket.on("new_questions_response", (data) => {
     const { username, room, status, time } = data;
     let __createdtime__ = Date.now();
-    if ((time || __createdtime__) <= newQuesstionsObj.room.maxResponseTime) {
+    if (time <= newQuesstionsObj.room.maxResponseTime) {
       socket.to(room).emit("receive_message", {
         message: `${username} has ${status}ed new questions request`,
         __createdtime__,
         username: CHAT_BOT,
       });
       if (status === "accept") {
-        newQuestionsResponses[room] += 1;
+        newQuesstionsObj[room].value += 1;
       } else {
-        newQuestionsResponses[room] -= 1;
+        newQuesstionsObj[room].value -= 1;
       }
     }
-  });
-
-  socket.on("new_questions_result", (data, callback) => {
-    const { room } = data;
-    const extraVotes = newQuestionsResponses[room];
-    callback(extraVotes);
   });
 
   socket.once("disconnecting", (reason) => {

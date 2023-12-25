@@ -11,6 +11,8 @@ const UsernameValidationWrapper = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const validateUsername = async () => {
+    //fetch info from local
+    //send to /auth/verify/sessionToken => boolean
     const response = await fetch(`${BACKEND_URL}/checkUser`, {
       method: "POST",
       headers: {

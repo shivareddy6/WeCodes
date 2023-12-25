@@ -36,34 +36,6 @@ const LandingPage = () => {
     setLoading(false);
   };
 
-  const tokensLogin = async () => {
-    setLoading(true);
-    if (csrfToken === "" || sessionToken === "") {
-      alert("Please enter both the tokes");
-    } else {
-      const response = await fetch(`${BACKEND_URL}/addUser`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "ngrok-skip-browser-warning": "69420",
-        },
-        body: JSON.stringify({
-          csrfToken,
-          session: sessionToken,
-        }),
-      });
-      // console.log(await response.json());
-      const res = await response.json();
-      if (res.error) {
-        alert("Please enter valid tokens");
-      } else {
-        dispatch(setUserName(res.username));
-      }
-    }
-
-    setLoading(false);
-  };
 
   return (
     <div className="landing-page flex flex-col items-center gap-20 w-[80%] lg:w-[70%] xl:w-[60%] pb-[15%]">

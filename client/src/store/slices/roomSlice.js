@@ -3,12 +3,7 @@ import { BACKEND_URL } from "../../config";
 
 const initialState = {
   currentProblem: 0,
-  allProblems: [
-    "palindrome-number",
-    "longest-palindromic-substring",
-    "valid-parentheses",
-    "image-smoother",
-  ],
+  allProblems: [],
   isLoading: false, //whole problems and editor window loads
 };
 
@@ -18,15 +13,18 @@ function sleep(ms) {
 
 export const fetchProblems = createAsyncThunk(
   "content/fetchProblems",
-  async () => {
-    const res = await fetch(`${BACKEND_URL}/leetcode/roomProblems`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "ngrok-skip-browser-warning": "69420",
-      },
-    });
+  async (roomName = "room") => {
+    const res = await fetch(
+      `${BACKEND_URL}/leetcode/roomProblems/${roomName}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "ngrok-skip-browser-warning": "69420",
+        },
+      }
+    );
     const response = await res.json();
     return response;
   }
@@ -59,7 +57,7 @@ export const roomSlice = createSlice({
     updateAllProblems: (state, action) => {
       state.allProblems = action.payload;
       state.currentProblem = 0;
-    }
+    },
   },
   extraReducers: {
     [fetchProblems.pending]: (state) => {
@@ -75,6 +73,7 @@ export const roomSlice = createSlice({
   },
 });
 
-export const { addPeople, nextProblem, prevProblem, updateAllProblems } = roomSlice.actions;
+export const { addPeople, nextProblem, prevProblem, updateAllProblems } =
+  roomSlice.actions;
 
 export default roomSlice.reducer;

@@ -7,8 +7,8 @@ import { sendMessageFromBot } from "..";
 import { problems } from "../data/problems";
 
 const leetcodeRoutes = express.Router();
-
-export function getRandomQuestions(): string[] {
+const currentRoomQUestions: Record<string, Array<string>> = {}
+export function getRandomQuestions(room: string): string[] {
   const questions = problems;
   const selectedQuestions: Array<string> = [];
   for (const difficulty of ["Easy", "Medium", "Medium", "Hard"]) {
@@ -19,6 +19,7 @@ export function getRandomQuestions(): string[] {
       ];
     selectedQuestions.push(randomQuestion);
   }
+  currentRoomQUestions[room] = selectedQuestions;
   return selectedQuestions;
 }
 
@@ -31,8 +32,11 @@ leetcodeRoutes.get(
   }
 );
 
-leetcodeRoutes.get("/roomProblems", (req: Request, res: Response) => {
-  const probs = getRandomQuestions();
+leetcodeRoutes.get("/roomProblems/:room", (req: Request, res: Response) => {
+  const { room } = req.params;
+  // const probs = getRandomQuestions();
+  if (!currentRoomQUestions[room]) getRandomQuestions(room);
+  const probs = currentRoomQUestions[room];
   res.send(probs);
 });
 
