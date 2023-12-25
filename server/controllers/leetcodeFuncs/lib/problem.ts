@@ -12,7 +12,8 @@ export class NewProblem {
     public difficulty?: string,
     public content?: string,
     public tags?: Array<string>,
-    public snippets?: Array<any>
+    public snippets?: Array<any>,
+    public exampleTestcaseList?: string
   ) {
     this.slug = slug;
     this.credit = credit;
@@ -57,6 +58,7 @@ export class NewProblem {
               query questionContent($titleSlug: String!) {
                   question(titleSlug: $titleSlug) {
                   content
+                  exampleTestcaseList
                   }
               }
             `,
@@ -66,7 +68,9 @@ export class NewProblem {
       },
       this.credit
     );
+    // console.log("first", contentResponse, contentResponse.exampleTestcaseList);
     this.content = contentResponse.question.content;
+    this.exampleTestcaseList = contentResponse.question.exampleTestcaseList;
   };
 
   setTagDetails = async () => {
@@ -126,12 +130,14 @@ export class NewProblem {
     // console.log(this.title);
     await this.setContentDetails();
     await this.setTagDetails();
+    // console.log("second", this.exampleTestcaseList);
     return {
       id: this.frontendId,
       title: this.title,
       difficulty: this.difficulty,
       content: this.content,
       tags: this.tags,
+      exampleTestcases: this.exampleTestcaseList,
     };
   };
 
@@ -163,7 +169,7 @@ export class NewProblem {
         },
       },
       this.credit
-    )
+    );
     // console.log("run response ", runResponse);
     const interpret_id = runResponse.interpret_id;
     // console.log("submitted the code to run ", interpret_id);
@@ -235,7 +241,7 @@ export class NewProblem {
           },
           this.credit
         );
-        console.log(runDetails);
+        // console.log(runDetails);
       }, 2000);
     });
   };

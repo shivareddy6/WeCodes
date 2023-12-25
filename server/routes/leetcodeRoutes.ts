@@ -101,7 +101,7 @@ leetcodeRoutes.post(
           "room",
           `${username} has solved ${problem.title} faster than ${Math.round(
             details.runtime_percentile
-          )}%`
+          )}% 🎉`
         );
       }
     } catch (err) {
