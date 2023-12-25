@@ -8,6 +8,7 @@ import { socket } from "../../services/socket";
 import NewRoomRequest from "./NewRoomRequest";
 import { fetchProblems, updateAllProblems } from "../../store/slices/roomSlice";
 import ProgressBar from "../ProgressBar";
+import { Avatar } from "@mui/material";
 const ChatWindow = () => {
   function formatDateFromTimestamp(timestamp) {
     const date = new Date(timestamp);
@@ -125,15 +126,30 @@ const ChatWindow = () => {
 
   return (
     <div className="flex flex-col h-full overflow-auto">
-      <div className="h-[42px]">
-        <p className="">Current user details</p>
+      <div className="h-[42px] flex gap-2 items-center w-full justify-end px-4">
+        <p className="">{username}</p>
+        <Avatar
+          sx={{
+            width: 35,
+            height: 35,
+            paddingBottom: 0,
+            marginBottom: 0,
+            backgroundColor: "#162c51",
+            // backgroundColor:
+            //   avatarColors[
+            //     person.username ? person.username.length % 10 : 0
+            //   ],
+          }}
+        >
+          {username.length > 0 ? username[0] : "U"}
+        </Avatar>
       </div>
       <div className="people-div flex flex-col gap-2 mb-4">
         <p className="text-sm text-gray-400">{people.length} people</p>
         <PropleList />
         <button
           className={
-            "px-4 py-2 hover:bg-[#464646] rounded-[8px] bg-tertiary active:bg-tertiary " +
+            "px-4 py-2 hover:bg-[#464646] rounded-[8px] border-tertiary border-2 border-solid active:bg-tertiary " +
             (disableNewQuestions &&
               "bg-[#464646] hover:bg-[464646] cursor-not-allowed active:bg-[#464646]")
           }

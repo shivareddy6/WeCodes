@@ -8,6 +8,7 @@ import Testcases from "./Testcases";
 import "./styles.css";
 import { useSelector } from "react-redux";
 import { BACKEND_URL } from "../../config";
+import Button from "@girishsawant999/react-loading-button";
 
 // import data from "./customTheme.json";
 
@@ -29,6 +30,7 @@ const CustEditor = ({
   const [runError, setRunError] = useState("");
   const [codeRunning, setCodeRunning] = useState(false);
   const [wrongTestCase, setWrongTestCase] = useState("");
+  const [loadButton, setLoadButton] = useState("");
   const username = useSelector((state) => state.user.username);
   // console.log("question in editor", questionLoading)
   useEffect(() => {
@@ -89,7 +91,7 @@ const CustEditor = ({
     if (code === "") setCode(newSnippets[language.name]);
     setEditorLoad(false);
   };
-
+  const [temp, setTemp] = useState(false);
   const setOldCode = async () => {
     let snippets = JSON.parse(localStorage.getItem(`${problemSlug}_snippets`));
     if (snippets === null) await fetchAndSetSnippets();
@@ -119,6 +121,7 @@ const CustEditor = ({
     setRunError("");
     setStatus("");
     setWrongTestCase("");
+    setLoadButton("submit");
     // curInput = "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6\n[2,7,11,15,16]\n9";
     const data = {
       code: curCode,
@@ -156,6 +159,7 @@ const CustEditor = ({
       console.log("run error", err);
     }
     setCodeRunning(false);
+    setLoadButton("");
   };
 
   const handleRunCode = async (curLanguage, curCode, curInput) => {
@@ -172,7 +176,7 @@ const CustEditor = ({
       test: "test",
     };
     // console.log(data);
-
+    setLoadButton("run");
     setUserOutput("");
     setExpectedOutput("");
     setStdOutput("");
@@ -199,23 +203,24 @@ const CustEditor = ({
       } else setStatus(response.status_msg);
       console.log(response);
       // if (response.error) {
-      //   setRunError("user not authenticated");
-      //   return ;
-      // }
-      let outputStr = "";
-      response.code_answer?.map((ans) => (outputStr += ans + "\n"));
-      setUserOutput(outputStr);
-      outputStr = "";
-      response.expected_code_answer?.map((ans) => (outputStr += ans + "\n"));
-      setExpectedOutput(outputStr);
-      outputStr = "";
-      response.code_output?.map((ans) => (outputStr += ans + "\n"));
-      setStdOutput(outputStr);
-      setRunError(response.runtime_error ? response.runtime_error : "");
-    } catch (err) {
-      console.log("run error", err);
-    }
-    setCodeRunning(false);
+        //   setRunError("user not authenticated");
+        //   return ;
+        // }
+        let outputStr = "";
+        response.code_answer?.map((ans) => (outputStr += ans + "\n"));
+        setUserOutput(outputStr);
+        outputStr = "";
+        response.expected_code_answer?.map((ans) => (outputStr += ans + "\n"));
+        setExpectedOutput(outputStr);
+        outputStr = "";
+        response.code_output?.map((ans) => (outputStr += ans + "\n"));
+        setStdOutput(outputStr);
+        setRunError(response.runtime_error ? response.runtime_error : "");
+      } catch (err) {
+        console.log("run error", err);
+      }
+      setCodeRunning(false);
+      setLoadButton("");
   };
 
   // useEffect(() => {
@@ -255,7 +260,16 @@ const CustEditor = ({
                   );
                   setCode(newCode);
                 }}
-                options={{ minimap: { enabled: false } }}
+                options={{
+                  minimap: { enabled: false },
+                  scrollbar: {
+                    alwaysConsumeMouseWheel: false
+                    // verticalScrollbarSize: 0, // Set vertical scrollbar size to 0
+                    // vertical: "hidden",
+                    // horizontal: "hidden",
+                    // handleMouseWheel: false,
+                  },
+                }}
               />
               <div className=" p-0 bg-secondary min-h-[21%]">
                 <Testcases
@@ -273,7 +287,7 @@ const CustEditor = ({
             </div>
             <div className="mt-[1px] h-[8%] flex-none py-[10px] px-[20px] flex w-[100%] gap-3 justify-end bg-secondary">
               <div className="flex gap-2 ">
-                <button
+                <Button
                   disabled={questionLoading || codeRunning}
                   className={`px-4 py-2 hover:bg-[#464646] rounded-[8px] 
                     ${
@@ -282,10 +296,12 @@ const CustEditor = ({
                         : "bg-[#3d3d3d]"
                     }`}
                   onClick={() => handleRunCode(language, code, testcaseData)}
+                  loading={loadButton === "run"}
+                  buttonType="#3d3d3d"
                 >
                   Run
-                </button>
-                <button
+                </Button>
+                <Button
                   disabled={questionLoading || codeRunning}
                   className={`py-2 px-4 hover:bg-[#4cc575] text-white rounded-md 
                     ${
@@ -294,9 +310,11 @@ const CustEditor = ({
                         : "bg-[#2CBB5D]"
                     }`}
                   onClick={() => handleSubmit(language, code, testcaseData)}
+                  loading={loadButton === "submit"}
+                  buttonType="#69a37d"
                 >
                   Submit
-                </button>
+                </Button>
               </div>
             </div>
           </div>

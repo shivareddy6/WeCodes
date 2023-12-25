@@ -4,6 +4,7 @@ import { BACKEND_URL } from "../../config";
 const initialState = {
   currentProblem: 0,
   allProblems: [],
+  exampleTestCases: "",
   isLoading: false, //whole problems and editor window loads
 };
 
@@ -58,6 +59,10 @@ export const roomSlice = createSlice({
       state.allProblems = action.payload;
       state.currentProblem = 0;
     },
+
+    updateExampleTestcases: (state, action) => {
+      state.exampleTestCases = action.payload;
+    },
   },
   extraReducers: {
     [fetchProblems.pending]: (state) => {
@@ -73,7 +78,12 @@ export const roomSlice = createSlice({
   },
 });
 
-export const { addPeople, nextProblem, prevProblem, updateAllProblems } =
-  roomSlice.actions;
+export const {
+  addPeople,
+  nextProblem,
+  prevProblem,
+  updateAllProblems,
+  updateExampleTestcases,
+} = roomSlice.actions;
 
 export default roomSlice.reducer;

@@ -14,7 +14,7 @@ const Message = ({ message, username }) => {
         className={
           "w-fit p-2 my-1 rounded-xl border-2 border-tertiary " +
           (message.username === "chatBot"
-            ? "bg-tertiary font-semibold"
+            ? "bg-tertiary font-semibold w-full flex justify-center text-center"
             : message.username === username
             ? " bg-[#38419d] rounded-tr-none border-0"
             : " rounded-tl-none bg-black")

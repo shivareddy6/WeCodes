@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 const statusBanner = (status) => {
   switch (status) {
@@ -51,10 +52,22 @@ const Testcases = ({
   runError,
   wrongTestCase,
 }) => {
+  const exampleTestCases = useSelector((state) => state.room.exampleTestCases);
   return (
     <div className="p-2 flex flex-col gap-2 justify-between">
       {status !== "" && statusBanner(status)}
-      <p className="text-lg font-semibold ">Test Cases:</p>
+      <div className="test-cases-row flex justify-between">
+        <p className="text-lg font-semibold ">Test Cases:</p>
+
+        <span
+          className="text-blue-500 underline cursor-pointer"
+          onClick={() => {
+            setTestcaseData(exampleTestCases?.join("\n"));
+          }}
+        >
+          use example testcases
+        </span>
+      </div>
       <textarea
         value={testcaseData}
         rows={4}

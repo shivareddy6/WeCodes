@@ -4,7 +4,6 @@ import { addPeople } from "./roomSlice";
 const initialState = {
   people: [],
   currentProblem: 0,
-  allProblems: [],
   roomName: "room",
   isLoading: false,
 };
