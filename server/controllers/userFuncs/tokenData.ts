@@ -4,6 +4,7 @@ import {
   graphQLRequest,
   healthCheckRequest,
 } from "../leetcodeFuncs/utils/helper";
+import { getHashedSessionToken } from "./auth";
 
 const userDetails: UserObject = {
   shiva_nanda: {
@@ -34,10 +35,16 @@ export const addTokens = async (csrfToken: string, session: string) => {
   const currentUserDetails = await getUserDeatilsFromTokens(csrfToken, session);
   if (currentUserDetails.isSignedIn) {
     userDetails[currentUserDetails.username] = { csrfToken, session };
+    const userSessionToken: string = getHashedSessionToken(currentUserDetails.username);
+    // console.log({
+    //   message: `${currentUserDetails.username} details added`,
+    //   username: currentUserDetails.username,
+    //   sessionToken: userSessionToken, // session token to login from front-end
+    // })
     return {
       message: `${currentUserDetails.username} details added`,
       username: currentUserDetails.username,
-      sessionToken: currentUserDetails.username, // session token to login from front-end
+      sessionToken: userSessionToken, // session token to login from front-end
     };
   } else {
     return { error: "user not found" };

@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from "react";
 import ProgressBar from "../ProgressBar";
+import { LinearProgress, Box } from "@mui/material";
 
-const NewRoomRequest = ({ sendNewQuestionsResponse, maxResponseTime }) => {
+const NewRoomRequest = ({
+  sendNewQuestionsResponse,
+  maxResponseTime,
+  username,
+  requestorUsername,
+}) => {
   const [disabled, setDisabled] = useState(false);
+  const [progress, setProgress] = useState(100);
+
+  useState(() => {
+    if (username === requestorUsername) setDisabled(true);
+  });
 
   const handleResponse = (status) => {
-    console.log(Date.now(), maxResponseTime);
     if (Date.now() <= maxResponseTime) {
-        console.log("in", status)
       sendNewQuestionsResponse({ status });
     }
     setDisabled(true);
@@ -18,22 +27,25 @@ const NewRoomRequest = ({ sendNewQuestionsResponse, maxResponseTime }) => {
       if (Date.now() > maxResponseTime) {
         clearInterval(interval);
         setDisabled(true);
+        setProgress(0);
       } else {
-        console.log(
-          Math.round((maxResponseTime - Date.now()) / 1000),
-          "seconds left to react"
+        setProgress(
+          Math.max(
+            0,
+            Math.min(Math.round((maxResponseTime - Date.now()) / 100), 100)
+          )
         );
       }
-    }, 1000);
+    }, 100);
   };
 
   useEffect(() => {
     handleTimer();
   }, []);
   return (
-    <div className="mx-auto w-[40%] min-w-fit bg-tertiary m-1 rounded-lg overflow-auto">
-      <div className="flex flex-col p-4 gap-2 items-center">
-        NewRoomRequest
+    <div className="mx-auto w-[40%] min-w-fit min-h-fit bg-tertiary m-1 rounded-lg">
+      <div className="flex flex-col p-4 gap-2 items-center min-h-fit">
+        {username} requested new room
         <div className="flex gap-2 justify-around w-full">
           <button
             className={
@@ -59,7 +71,15 @@ const NewRoomRequest = ({ sendNewQuestionsResponse, maxResponseTime }) => {
           </button>
         </div>
       </div>
-      <ProgressBar totalTime={maxResponseTime - Date.now()} />
+      {/* <ProgressBar totalTime={maxResponseTime - Date.now()} /> */}
+      <Box sx={{ width: "100%", borderRadius: "7px" }}>
+        <LinearProgress
+          color="inherit"
+          variant="determinate"
+          value={progress}
+          sx={{borderRadius: "0 0 7px 7px" }}
+        />
+      </Box>
     </div>
   );
 };

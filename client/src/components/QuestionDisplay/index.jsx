@@ -18,6 +18,8 @@ import {
   updateExampleTestcases,
 } from "../../store/slices/roomSlice";
 import { BACKEND_URL } from "../../config";
+import { getProblemDetails } from "../../functions/leetcodeFunctions";
+import DifficultyTag from "./DifficultyTag";
 
 const QuestionDisplay = memo(
   ({
@@ -27,16 +29,6 @@ const QuestionDisplay = memo(
     questionLoading,
     setQuestionLoading,
   }) => {
-    console.log("hellooooo");
-    useEffect(() => {
-      console.log("props changed");
-    }, [
-      problemSlug,
-      problems,
-      setProblemSlug,
-      questionLoading,
-      setQuestionLoading,
-    ]);
     const [display, setDisplay] = useState("<strong>Loading...</strong>");
     // const [loading, setLoading] = useState(true);
     const [tags, setTags] = useState([]);
@@ -48,100 +40,23 @@ const QuestionDisplay = memo(
     useEffect(() => {
       const loadData = async () => {
         setQuestionLoading(true);
-        fetch(`${BACKEND_URL}/leetcode/problem/${problemSlug}/`, {
-          method: "GET",
-          headers: {
-            "ngrok-skip-browser-warning": "69420",
-          },
-        })
-          .then(async (res) => {
-            console.log("inside fetch", res.body);
-            const newDisplay = await res.json();
-            console.log("display", newDisplay);
-            setTags(newDisplay.tags);
-            setDisplay(newDisplay.content);
-            // const newSnippets = {};
-            // newDisplay.snippets.map(
-            //   (snippet) => (newSnippets[snippet.lang] = snippet.code)
-            // );
-            // // console.log(newSnippets)
-            // setSnippets(newSnippets);
-            setTitle(newDisplay.id + ". " + newDisplay.title);
-            setDifficulty(newDisplay.difficulty);
-            dispatch(
-              updateExampleTestcases(
-                newDisplay.exampleTestcases ? newDisplay.exampleTestcases : ""
-              )
-            );
-            // setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-          })
-          .finally(() => setQuestionLoading(false));
+        const newDisplay = await getProblemDetails(problemSlug);
+        setTags(newDisplay.tags);
+        setDisplay(newDisplay.content);
+        setTitle(newDisplay.id + ". " + newDisplay.title);
+        setDifficulty(newDisplay.difficulty);
+        dispatch(
+          updateExampleTestcases(
+            newDisplay.exampleTestcases ? newDisplay.exampleTestcases : ""
+          )
+        );
+        setQuestionLoading(false);
       };
       loadData();
     }, [problemSlug]);
 
-    // useEffect(() => console.log("question", questionLoading), [questionLoading]);
-
-    const GetDifficulty = ({ difficulty }) => {
-      const styles = {
-        borderRadius: "21px",
-        padding: "4px 10px",
-        fontWeight: "bold",
-        height: "30px",
-        margin: "auto",
-        // margin: "5px"
-      };
-      if (difficulty === "Easy") {
-        return (
-          <p
-            style={{
-              ...styles,
-              background: "#223d3a",
-              color: "#00b8e3",
-            }}
-          >
-            Easy
-          </p>
-        );
-      } else if (difficulty === "Medium") {
-        return (
-          <p
-            style={{
-              ...styles,
-              background: "#483f26",
-              color: "ffc01e",
-            }}
-          >
-            Medium
-          </p>
-        );
-      } else {
-        return (
-          <p
-            style={{
-              ...styles,
-              background: "#482a30",
-              color: "#ff375f",
-            }}
-          >
-            Hard
-          </p>
-        );
-      }
-    };
-
     return (
       <div className="flex flex-col gap-0">
-        {/* <div className="questions-menu flex gap-5 justify-between max-w-[330px] px-2 h-[41px]">
-        {problems.map((problem) => (
-          <button className={problem === problemSlug && "bg-secondary"}>
-            {problem}
-          </button>
-        ))}
-      </div> */}
         <div className="py-[4px] h-[42px]">
           <Dropdown
             options={problems}
@@ -171,7 +86,7 @@ const QuestionDisplay = memo(
                     >
                       {title}
                     </p>
-                    <GetDifficulty difficulty={difficulty} />
+                    <DifficultyTag difficulty={difficulty} />
                   </div>
                   <div className="problems-navigate flex gap-2 pb-2 items-center ml-2">
                     <div

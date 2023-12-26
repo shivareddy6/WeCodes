@@ -41,7 +41,6 @@ const ChatWindow = () => {
   };
 
   useEffect(() => {
-    console.log("chant window use effect");
     if (socket !== undefined) {
       socket.on("receive_message", (data) => {
         setMessagesReceived((state) => [
@@ -55,7 +54,6 @@ const ChatWindow = () => {
       });
 
       socket.on("chatroom_users", (data) => {
-        console.log("chatroom_users", data);
         dispatch(updatePeople(data));
       });
 
@@ -80,7 +78,6 @@ const ChatWindow = () => {
       socket.on("update_room_questions", (data) => {
         dispatch(updateAllProblems(data));
       });
-      console.log("socket changed");
       return () => socket.off("receive_message");
     }
     // Remove event listener on component unmount
@@ -115,7 +112,6 @@ const ChatWindow = () => {
   };
 
   const sendNewQuestionsResponse = ({ status }) => {
-    console.log("res", { room: "room", username, status });
     socket.emit("new_questions_response", {
       room: "room",
       username,
@@ -158,7 +154,7 @@ const ChatWindow = () => {
           }}
           disabled={disableNewQuestions}
         >
-          New Questions
+          New Questions 🌟
         </button>
       </div>
       <div className="p-[6px] flex flex-col bg-secondary w-full flex-1 justify-between gap-2 overflow-y-scroll scrollbar-none">
@@ -168,6 +164,8 @@ const ChatWindow = () => {
               <NewRoomRequest
                 sendNewQuestionsResponse={sendNewQuestionsResponse}
                 maxResponseTime={message.maxResponseTime}
+                requestorUsername={message.username}
+                username={username}
               />
             ) : (
               <Message

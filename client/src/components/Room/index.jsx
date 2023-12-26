@@ -25,11 +25,6 @@ const Room = () => {
   const [theme, setTheme] = useState("");
   const [questionLoading, setQuestionLoading] = useState(false);
   const username = useSelector((state) => state.user.username);
-  console.log("username chat", username);
-  useEffect(() => {
-    console.log("into use effect", username);
-    // joinroom();
-  }, []);
 
   useEffect(() => {
     if (problems.length !== 0) setProblemSlug(problems[currentProblem]);
@@ -45,12 +40,9 @@ const Room = () => {
   };
   loadTheme();
 
-  console.log("probs", problemsLoading, problems, problemSlug, "|");
   if (problemsLoading)
     return (
-      <div className="flex justify-center items-center w-full h-full">
-        Loading...
-      </div>
+      <CircularProgress color="inherit" />
     );
 
   return (

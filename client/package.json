@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -26,6 +26,7 @@
     "npm": "^10.2.1",
     "randomcolor": "^0.6.2",
     "react": "^18.2.0",
+    "react-confetti-explosion": "^2.1.2",
     "react-dom": "^18.2.0",
     "react-html-parser": "^2.0.2",
     "react-icons": "^4.11.0",

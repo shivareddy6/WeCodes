@@ -9,6 +9,12 @@ import "./styles.css";
 import { useSelector } from "react-redux";
 import { BACKEND_URL } from "../../config";
 import Button from "@girishsawant999/react-loading-button";
+import {
+  getSnippets,
+  runCode,
+  submitCode,
+} from "../../functions/leetcodeFunctions";
+import ConfettiExplosion from "react-confetti-explosion";
 
 // import data from "./customTheme.json";
 
@@ -32,7 +38,7 @@ const CustEditor = ({
   const [wrongTestCase, setWrongTestCase] = useState("");
   const [loadButton, setLoadButton] = useState("");
   const username = useSelector((state) => state.user.username);
-  // console.log("question in editor", questionLoading)
+
   useEffect(() => {
     setTestcaseData("");
     setStatus("");
@@ -43,6 +49,7 @@ const CustEditor = ({
     setCodeRunning("");
     setWrongTestCase("");
   }, [problemSlug]);
+
   useEffect(() => {
     if (problemSlug !== "") {
       // console.log("reload");
@@ -70,20 +77,11 @@ const CustEditor = ({
 
   const fetchAndSetSnippets = async () => {
     setEditorLoad(true);
-    const res = await fetch(`${BACKEND_URL}/leetcode/problem/${problemSlug}/`, {
-      method: "GET",
-      headers: {
-        "ngrok-skip-browser-warning": "69420",
-      },
-    });
-    const response = await res.json();
-    // console.log(response)
+    const response = await getSnippets(problemSlug);
     const newSnippets = {};
     response.snippets.map(
       (snippet) => (newSnippets[snippet.lang] = snippet.code)
     );
-    // console.log(newSnippets);
-    // return newSnippets;
     localStorage.setItem(
       `${problemSlug}_snippets`,
       JSON.stringify(newSnippets)
@@ -91,19 +89,15 @@ const CustEditor = ({
     if (code === "") setCode(newSnippets[language.name]);
     setEditorLoad(false);
   };
-  const [temp, setTemp] = useState(false);
+
   const setOldCode = async () => {
     let snippets = JSON.parse(localStorage.getItem(`${problemSlug}_snippets`));
     if (snippets === null) await fetchAndSetSnippets();
     snippets = JSON.parse(localStorage.getItem(`${problemSlug}_snippets`));
-    // console.log("already", snippets);
-    // console.log(language);
     const oldCode = localStorage.getItem(`${problemSlug}_${language.name}`);
-    // console.log(oldCode, language.name);
     if (oldCode !== null && oldCode !== "undefined") {
       setCode(oldCode);
     } else {
-      // console.log("into else", snippets[language.name]);
       localStorage.setItem(
         `${problemSlug}_${language.name}`,
         snippets[language.name]
@@ -114,7 +108,6 @@ const CustEditor = ({
 
   const handleSubmit = async (curLanguage, curCode, curInput) => {
     setCodeRunning(true);
-    console.log("called submit", curLanguage);
     setUserOutput("");
     setExpectedOutput("");
     setStdOutput("");
@@ -122,7 +115,6 @@ const CustEditor = ({
     setStatus("");
     setWrongTestCase("");
     setLoadButton("submit");
-    // curInput = "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6\n[2,7,11,15,16]\n9";
     const data = {
       code: curCode,
       input: curInput,
@@ -130,19 +122,8 @@ const CustEditor = ({
       slug: problemSlug,
       username: username,
     };
-    // console.log(data);
     try {
-      const res = await fetch(`${BACKEND_URL}/leetcode/submit-code/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "ngrok-skip-browser-warning": "69420",
-        },
-        body: JSON.stringify(data),
-      });
-      const response = await res.json();
-      console.log(response);
+      const response = await submitCode(data);
       if (response.status_msg) setStatus(response.status_msg);
       else if (response.error) {
         setStatus("User not authenticated, please login from extension");
@@ -155,6 +136,7 @@ const CustEditor = ({
         response.expected_output ? response.expected_output : ""
       );
       setRunError(response.runtime_error ? response.runtime_error : "");
+      setRunError(response.compile_error ? response.compile_error : "");
     } catch (err) {
       console.log("run error", err);
     }
@@ -164,16 +146,13 @@ const CustEditor = ({
 
   const handleRunCode = async (curLanguage, curCode, curInput) => {
     setCodeRunning(true);
-    console.log("called", curLanguage);
     // curInput = "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6\n[2,7,11,15,16]\n9";
-    console.log(username);
     const data = {
       code: curCode,
       input: curInput,
       language: curLanguage.leetcode_value,
       slug: problemSlug,
       username: username,
-      test: "test",
     };
     // console.log(data);
     setLoadButton("run");
@@ -184,51 +163,31 @@ const CustEditor = ({
     setStatus("");
     setWrongTestCase("");
     try {
-      const res = await fetch(`${BACKEND_URL}/leetcode/run-code/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "ngrok-skip-browser-warning": "69420",
-        },
-        body: JSON.stringify(data),
-      });
-      console.log("raw output", res);
-      const response = await res.json();
+      const response = await runCode(data);
       if (response.status_msg === "Accepted") {
         if (response.correct_answer) setStatus("Testcases Passed");
         else setStatus("Testcases failed");
       } else if (response.error) {
         setStatus("User not authenticated, please login from extension");
       } else setStatus(response.status_msg);
-      console.log(response);
-      // if (response.error) {
-        //   setRunError("user not authenticated");
-        //   return ;
-        // }
-        let outputStr = "";
-        response.code_answer?.map((ans) => (outputStr += ans + "\n"));
-        setUserOutput(outputStr);
-        outputStr = "";
-        response.expected_code_answer?.map((ans) => (outputStr += ans + "\n"));
-        setExpectedOutput(outputStr);
-        outputStr = "";
-        response.code_output?.map((ans) => (outputStr += ans + "\n"));
-        setStdOutput(outputStr);
-        setRunError(response.runtime_error ? response.runtime_error : "");
-      } catch (err) {
-        console.log("run error", err);
-      }
-      setCodeRunning(false);
-      setLoadButton("");
+      let outputStr = "";
+      response.code_answer?.map((ans) => (outputStr += ans + "\n"));
+      setUserOutput(outputStr);
+      outputStr = "";
+      response.expected_code_answer?.map((ans) => (outputStr += ans + "\n"));
+      setExpectedOutput(outputStr);
+      outputStr = "";
+      response.code_output?.map((ans) => (outputStr += ans + "\n"));
+      setStdOutput(outputStr);
+      setRunError(response.runtime_error ? response.runtime_error : "");
+      setRunError(response.compile_error ? response.compile_error : "");
+    } catch (err) {
+      console.log("run error", err);
+    }
+    setCodeRunning(false);
+    setLoadButton("");
   };
 
-  // useEffect(() => {
-  //   console.log("changed");
-  //   console.log(userOutput);
-  //   console.log(expectedOutput);
-  //   console.log(stdOutput);
-  // }, [stdOutput]);
   return (
     <>
       <div className="flex flex-col h-full w-[100%] min-w-[400px] overflow-hidden">
@@ -263,7 +222,7 @@ const CustEditor = ({
                 options={{
                   minimap: { enabled: false },
                   scrollbar: {
-                    alwaysConsumeMouseWheel: false
+                    alwaysConsumeMouseWheel: false,
                     // verticalScrollbarSize: 0, // Set vertical scrollbar size to 0
                     // vertical: "hidden",
                     // horizontal: "hidden",
@@ -314,6 +273,7 @@ const CustEditor = ({
                   buttonType="#69a37d"
                 >
                   Submit
+                  {status === "Accepted" && <ConfettiExplosion />}
                 </Button>
               </div>
             </div>

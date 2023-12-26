@@ -6,6 +6,7 @@ import { Server, ServerOptions, Socket } from "socket.io";
 import http from "http";
 import { addTokens, healthCheck } from "./controllers/userFuncs/tokenData";
 import { NewQuesstionsObj } from "./interfaces";
+import { isSessionTokenValid } from "./controllers/userFuncs/auth";
 
 dotenv.config();
 
@@ -51,9 +52,10 @@ app.post("/auth/updateTokens", async (req: Request, res: Response) => {
 
 app.post("/checkUser", async (req: Request, res: Response) => {
   // console.log("user touched");
-  const { username } = req.body;
-  const response = await healthCheck(username);
-  res.send(response);
+  const { username, sessionToken } = req.body;
+  const tokensHealth = await healthCheck(username);
+  const sessionValidity = isSessionTokenValid(username, sessionToken);
+  res.send(tokensHealth && sessionValidity);
 });
 
 const CHAT_BOT = "chatBot";
@@ -89,7 +91,6 @@ const disconnectUser = (socket: Socket) => {
   const userDetails = removeUserFromRoom(socket);
   if (!userDetails) return;
   const { username, room } = userDetails;
-  console.log("user disconnected", username);
 
   let __createdtime__ = Date.now();
   socket.to(room).emit("receive_message", {
@@ -112,9 +113,9 @@ const newQuesstionsObj: NewQuesstionsObj = {};
 */
 
 io.on("connection", (socket) => {
-  console.log(`User connected ${socket.id}`);
   socket.on("join_room", (data) => {
     const { username, room } = data;
+    console.log(`User ${username} joined ${socket.id}`);
     socket.join(room);
 
     let __createdtime__ = Date.now(); // Current timestamp
@@ -159,12 +160,11 @@ io.on("connection", (socket) => {
         value: 1,
         maxResponseTime: Date.now() + 10000,
       };
-      socket.to(room).emit("new_questions_request", {
+      io.in(room).emit("new_questions_request", {
         username,
         maxResponseTime: newQuesstionsObj[room].maxResponseTime,
       });
       await sleep(10000);
-      console.log("votes", newQuesstionsObj[room].value);
       if (newQuesstionsObj[room].value > 0) {
         const newQuestions = getRandomQuestions(room);
         io.in(room).emit("update_room_questions", newQuestions);
