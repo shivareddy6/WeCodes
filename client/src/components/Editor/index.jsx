@@ -135,8 +135,8 @@ const CustEditor = ({
       setExpectedOutput(
         response.expected_output ? response.expected_output : ""
       );
-      setRunError(response.runtime_error ? response.runtime_error : "");
-      setRunError(response.compile_error ? response.compile_error : "");
+      setRunError(response?.runtime_error !== "" ? response.runtime_error : "");
+      setRunError(response?.compile_error !== "" ? response.compile_error : "");
     } catch (err) {
       console.log("run error", err);
     }
@@ -179,8 +179,8 @@ const CustEditor = ({
       outputStr = "";
       response.code_output?.map((ans) => (outputStr += ans + "\n"));
       setStdOutput(outputStr);
-      setRunError(response.runtime_error ? response.runtime_error : "");
-      setRunError(response.compile_error ? response.compile_error : "");
+      setRunError(response?.runtime_error !== "" ? response.runtime_error : "");
+      setRunError(response?.compile_error !== "" ? response.compile_error : "");
     } catch (err) {
       console.log("run error", err);
     }
